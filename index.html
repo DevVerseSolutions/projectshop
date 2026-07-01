@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VIP Project Shop - Premium Firebase Edition</title>
+    
+    <!-- Firebase core JavaScript SDKs (v8 optimized for Single Page Apps) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <style>
+        /* LUXURIOUS PREMIUM VIP THEME CONFIGURATION */
+        :root {
+            --bg-dark: #0a0b10;
+            --panel-dark: #12141c;
+            --gold-primary: #dfb76c;
+            --gold-secondary: #f3e0b5;
+            --gold-gradient: linear-gradient(135deg, #b38728, #fbf5b7, #daaf51, #aa771c);
+            --text-light: #ffffff;
+            --text-muted: #8a90a6;
+            --border-gold: rgba(223, 183, 108, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            padding-bottom: 40px;
+            overflow-x: hidden;
+        }
+
+        /* PREMIUM APP HEADER */
+        header {
+            background: linear-gradient(180deg, #161923 0%, var(--bg-dark) 100%);
+            border-bottom: 1px solid var(--border-gold);
+            text-align: center;
+            padding: 25px 20px;
+            font-size: 26px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            background-image: var(--gold-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(218, 175, 81, 0.2);
+        }
+
+        /* 1 LINE = 2 PROJECTS GRID SETUP */
+        .container {
+            padding: 20px 15px;
+            max-width: 500px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .project-card {
+            background: var(--panel-dark);
+            border: 1px solid var(--border-gold);
+            border-radius: 16px;
+            padding: 14px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+
+        .project-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 3px;
+            background: var(--gold-gradient);
+            opacity: 0.8;
+        }
+
+        .project-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--gold-primary);
+        }
+
+        .project-img {
+            width: 100%;
+            height: 95px;
+            background: linear-gradient(135deg, #171a26, #0d0f17);
+            border: 1px solid rgba(223, 183, 108, 0.1);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            color: var(--gold-primary);
+            margin-bottom: 12px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .project-title {
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 1.4;
+            margin-bottom: 14px;
+            color: #f3e0b5;
+            height: 38px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* PREMIUM VIEW BUTTON */
+        .view-btn {
+            background: var(--gold-gradient);
+            color: #000;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 800;
+            font-size: 13px;
+            text-transform: uppercase;
+            width: 100%;
+            box-shadow: 0 4px 15px rgba(218, 175, 81, 0.3);
+            transition: all 0.2s ease;
+        }
+
+        .view-btn:active {
+            transform: scale(0.96);
+        }
+
+        /* UNCOMMON MODALS / POPUPS */
+        .modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(4, 5, 7, 0.93);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: linear-gradient(145deg, #131622, #0d0f17);
+            border: 1px solid var(--gold-primary);
+            padding: 30px 25px;
+            border-radius: 24px;
+            width: 100%;
+            max-width: 380px;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(218, 175, 81, 0.2);
+            animation: luxuryReveal 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes luxuryReveal {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-title {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            background-image: var(--gold-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-transform: uppercase;
+        }
+
+        .telegram-btn {
+            background: linear-gradient(135deg, #0088cc, #006699);
+            color: white;
+            padding: 14px;
+            display: block;
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: bold;
+            margin: 20px 0 12px 0;
+            box-shadow: 0 5px 15px rgba(0, 136, 204, 0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .submit-btn {
+            background: #1d2130;
+            color: var(--text-muted);
+            border: 1px solid rgba(255,255,255,0.05);
+            padding: 14px;
+            width: 100%;
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: not-allowed;
+            transition: all 0.3s ease;
+        }
+
+        .submit-btn.active {
+            background: var(--gold-gradient);
+            color: #000;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(218, 175, 81, 0.4);
+            border: none;
+        }
+
+        /* 10-20 SCREENSHOT BOX */
+        .screenshot-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+            margin: 18px 0;
+            max-height: 130px;
+            overflow-y: auto;
+            padding: 8px;
+            background: #090a0f;
+            border: 1px solid rgba(223, 183, 108, 0.1);
+            border-radius: 10px;
+        }
+
+        .screen-thumb {
+            width: 100%;
+            height: 48px;
+            background: linear-gradient(135deg, #171a26, #10121a);
+            border: 1px solid rgba(223, 183, 108, 0.15);
+            border-radius: 6px;
+            font-size: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gold-secondary);
+        }
+
+        /* DUAL CURRENCY BADGE */
+        .price-badge {
+            background: rgba(218, 175, 81, 0.08);
+            border: 1px dashed var(--gold-primary);
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: bold;
+            color: #f5d082;
+            margin: 15px 0;
+            letter-spacing: 0.5px;
+        }
+
+        .project-desc {
+            font-size: 13px;
+            text-align: left;
+            color: #b1b7cb;
+            background: #090a0f;
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            max-height: 110px;
+            overflow-y: auto;
+            line-height: 1.5;
+            border-left: 3px solid var(--gold-primary);
+        }
+
+        .close-btn {
+            background: #171923;
+            color: #fff;
+            border: 1px solid var(--border-gold);
+            padding: 12px;
+            width: 100%;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .hidden { display: none !important; }
+        
+        .ip-tracker-text {
+            font-size: 11px;
+            color: var(--gold-primary);
+            margin-top: 15px;
+            opacity: 0.8;
+        }
+        
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #0a0b10; }
+        ::-webkit-scrollbar-thumb { background: var(--gold-primary); border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>VIP Project Shop</header>
+
+    <!-- ANTI-BYPASS TELEGRAM VERIFICATION LOCK -->
+    <div id="authModal" class="modal hidden">
+        <div class="modal-content">
+            <h3 class="modal-title">Access Verification</h3>
+            <p style="font-size: 13px; color: var(--text-muted); line-height: 1.4;">প্রিমিয়াম ভিআইপি স্টোরে প্রবেশের পূর্বে আপনাকে অবশ্যই আমাদের অফিসিয়াল টেলিগ্রাম চ্যানেলে যুক্ত হতে হবে।</p>
+            
+            <!-- নিজের টেলিগ্রাম চ্যানেলের লিংক এখানে বসাবেন -->
+            <a href="https://t.me/your_channel_username" target="_blank" class="telegram-btn" id="joinBtn">
+                📢 JOIN OFFICIAL CHANNEL
+            </a>
+
+            <button class="submit-btn" id="authSubmitBtn" disabled>
+                VERIFY & ENTER SHOP
+            </button>
+            
+            <p class="ip-tracker-text" id="userIp">🔍 SECURING CONNECTION...</p>
+        </div>
+    </div>
+
+    <!-- MAIN PRODUCT LIST (GRID 1 LINE = 2 CARDS) -->
+    <div class="container hidden" id="mainContent">
+        <!-- প্রজেক্টের লিস্ট ফায়ারবেস ক্লাউড থেকে অটো লোড হবে -->
+    </div>
+
+    <!-- EXCLUSIVE OVERVIEW POPUP -->
+    <div id="detailsModal" class="modal hidden">
+        <div class="modal-content" style="max-width: 410px;">
+            <h3 class="modal-title" id="modalProjName">PROJECT NAME</h3>
+            
+            <div class="price-badge">
+                PREMIUM VALUATION:<br>
+                <span id="modalProjPriceUSD" style="color: #fff;">$00</span> &nbsp;|&nbsp; <span id="modalProjPriceBDT" style="color: var(--gold-secondary);">00 BDT</span>
+            </div>
+
+            <p style="font-size: 12px; text-align: left; font-weight: 600; color: var(--gold-primary); margin-bottom: 4px;">📸 PREVIEW DECK (20+ VISUAL SCREENSHOTS):</p>
+            <div class="screenshot-container" id="screenshotBox"></div>
+
+            <p style="font-size: 12px; text-align: left; font-weight: 600; color: var(--gold-primary); margin-bottom: 4px;">📜 SOURCE STRUCTURE DETAILS:</p>
+            <div class="project-desc" id="modalProjDesc"></div>
+
+            <button class="close-btn" onclick="closeDetails()">EXIT OVERVIEW</button>
+        </div>
+    </div>
+
+    <script>
+        // -------------------------------------------------------------
+        // ১. ফায়ারবেস কনফিগারেশন (আপনার ফায়ারবেস কনসোল থেকে তথ্য নিয়ে এখানে বসাবেন)
+        // -------------------------------------------------------------
+        const firebaseConfig = {
+  apiKey: "AIzaSyBnRAb4evxkfnJRHHARS1lGQfnnLq1bJI0",
+  authDomain: "projectshop-26319.firebaseapp.com",
+  databaseURL: "https://projectshop-26319-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "projectshop-26319",
+  storageBucket: "projectshop-26319.firebasestorage.app",
+  messagingSenderId: "381864277377",
+  appId: "1:381864277377:web:c3a1018bfa65fe6108e480",
+  measurementId: "G-3L1T3G84NT"
+};
+        
+        // ফায়ারবেস ইনিশিয়েট করার আগে চেক করছি অবজেক্ট ডিফাইন করা আছে কিনা
+        let isFirebaseReady = false;
+        try {
+            if (firebaseConfig.apiKey !== "YOUR_API_KEY") {
+                firebase.initializeApp(firebaseConfig);
+                isFirebaseReady = true;
+            }
+        } catch(e) {
+            console.log("Firebase setup pending or config error.");
+        }
+
+        const database = isFirebaseReady ? firebase.database() : null;
+        let finalUserKey = "";
+
+        // ২. রিয়েলটাইম আইপি ট্র্যাকিং ও ক্লাউড সাইন-আপ অথেন্টিকেশন
+        async function runPremiumAuthEngine() {
+            try {
+                const response = await fetch('https://api.ipify.org?format=json');
+                const data = await response.json();
+                finalUserKey = data.ip.replace(/\./g, '_'); // ফায়ারবেস নোড সেফটি রুলস
+                document.getElementById('userIp').innerText = "VIP IP: " + data.ip + " [SECURED]";
+            } catch (error) {
+                // অফলাইন বা ব্রাউজার লোকালহোস্ট ফলব্যাক ট্র্যাকিং
+                finalUserKey = "Local_Node_" + navigator.userAgent.replace(/[^a-zA-Z0-9]/g, "").substring(0, 10);
+                document.getElementById('userIp').innerText = "VIP SECURITY CONNECTION CONNECTED";
+            }
+
+            // লোকাল মেমোরি প্লাস ক্লাউড সিঙ্ক চেক (যাতে ভেরিফিকেশন কখনো মিস না হয়)
+            const deviceAuth = localStorage.getItem('vip_verified_token');
+
+            if (deviceAuth === 'true') {
+                unlockPremiumShop();
+            } else if (isFirebaseReady && database) {
+                database.ref('vip_subscribers/' + finalUserKey).once('value', (snapshot) => {
+                    if (snapshot.exists() && snapshot.val().isApproved === true) {
+                        localStorage.setItem('vip_verified_token', 'true');
+                        unlockPremiumShop();
+                    } else {
+                        document.getElementById('authModal').classList.remove('hidden');
+                    }
+                });
+            } else {
+                // ফায়ারবেস কনফিগ না করা পর্যন্ত যাতে পেজ ফ্রিজ না হয়, তাই পপআপ শো করানো
+                document.getElementById('authModal').classList.remove('hidden');
+            }
+        }
+
+        // ৩. টেলিগ্রাম বাটন ক্লিক ভেরিফিকেশন ইভেন্ট লিসেনার
+        const joinBtn = document.getElementById('joinBtn');
+        const authSubmitBtn = document.getElementById('authSubmitBtn');
+
+        joinBtn.addEventListener('click', () => {
+            authSubmitBtn.removeAttribute('disabled');
+            authSubmitBtn.classList.add('active');
+        });
+
+        authSubmitBtn.addEventListener('click', () => {
+            localStorage.setItem('vip_verified_token', 'true');
+            
+            if (isFirebaseReady && database) {
+                database.ref('vip_subscribers/' + finalUserKey).set({
+                    isApproved: true,
+                    registeredIp: finalUserKey.replace(/_/g, '.'),
+                    timestamp: new Date().toLocaleString()
+                }).then(() => {
+                    unlockPremiumShop();
+                });
+            } else {
+                unlockPremiumShop();
+            }
+        });
+
+        function unlockPremiumShop() {
+            document.getElementById('authModal').classList.add('hidden');
+            document.getElementById('mainContent').classList.remove('hidden');
+            renderShopItems();
+        }
+
+        // ৪. ফায়ারবেস ক্লাউড ও ব্যাকআপ লোকাল সোর্স থেকে প্রোডাক্ট রেন্ডারিং
+        function renderShopItems() {
+            const mainContent = document.getElementById('mainContent');
+            
+            if (isFirebaseReady && database) {
+                database.ref('premium_products').once('value', (snapshot) => {
+                    if (snapshot.exists()) {
+                        mainContent.innerHTML = '';
+                        snapshot.forEach((child) => {
+                            const item = child.val();
+                            appendCardDOM(item.name, item.usd, item.bdt, item.desc);
+                        });
+                    } else {
+                        generateDefaultCloudCatalog();
+                    }
+                });
+            } else {
+                // ফায়ারবেস যুক্ত করার পূর্ব পর্যন্ত রেডিমেড লাক্সারি প্রোডাক্ট ডেটা লোড
+                mainContent.innerHTML = '';
+                const legacyData = [
+                    { name: "👑 TELEGRAM ULTRA AUTOMATION BOT", usd: "$25", bdt: "২,৭৫০ টাকা", desc: "হায়ার লেভেল অটোমেশন ফিচার স্ক্রিপ্ট। রিয়েলটাইম পুশ নোটিফিকেশন এপিআই সমৃদ্ধ প্রজেক্ট।" },
+                    { name: "💎 VIP INVESTMENT TRADING PORTAL", usd: "$65", bdt: "৭,১৫০ টাকা", desc: "লাক্সারিয়াস ডার্ক ইউআই ডিজাইন, ইনস্ট্যান্ট পেমেন্ট গেটওয়ে এবং ফুল অ্যাডমিন ড্যাশবোর্ড প্যানেল সোর্স কোড।" },
+                    { name: "🚀 LINK SHORTENER POWER ENGINE", usd: "$12", bdt: "১,৩২০ টাকা", desc: "প্রিমিয়াম ইউজার ড্যাশবোর্ড ও মেম্বারশিপ প্ল্যানসহ ডাইনামিক শর্টনার স্ক্রিপ্ট।" },
+                    { name: "🔥 SMM PANEL LUXURY THEME SCRIPT", usd: "$35", bdt: "৩,৮৫০ টাকা", desc: "সহজ এপিআই কানেকশন প্রসেস এবং সম্পূর্ণ মডার্ন অ্যাডমিন কন্ট্রোল সিস্টেম প্যানেল।" }
+                ];
+                legacyData.forEach(item => appendCardDOM(item.name, item.usd, item.bdt, item.desc));
+            }
+        }
+
+        function appendCardDOM(name, usd, bdt, desc) {
+            const mainContent = document.getElementById('mainContent');
+            const card = document.createElement('div');
+            card.className = 'project-card';
+            card.innerHTML = `
+                <div class="project-img">PREVIEW DECK</div>
+                <div class="project-title">${name}</div>
+                <button class="view-btn">View</button>
+            `;
+            card.querySelector('.view-btn').addEventListener('click', () => {
+                triggerDetailsWindow(name, usd, bdt, desc);
+            });
+            mainContent.appendChild(card);
+        }
+
+        function generateDefaultCloudCatalog() {
+            const sampleCatalog = [
+                { name: "👑 TELEGRAM ULTRA AUTOMATION BOT", usd: "$25", bdt: "২,৭৫০ টাকা", desc: "হায়ার লেভেল অটোমেশন ফিচার স্ক্রিপ্ট। রিয়েলটাইম পুশ নোটিফিকেশন এপিআই সমৃদ্ধ প্রজেক্ট।" },
+                { name: "💎 VIP INVESTMENT TRADING PORTAL", usd: "$65", bdt: "৭,১৫০ টাকা", desc: "লাক্সারিয়াস ডার্ক ইউআই ডিজাইন, ইনস্ট্যান্ট পেমেন্ট গেটওয়ে এবং ফুল অ্যাডমিন ড্যাশবোর্ড প্যানেল সোর্স কোড।" }
+            ];
+            sampleCatalog.forEach(p => database.ref('premium_products').push(p));
+            renderShopItems();
+        }
+
+        // ৫. ভিআইপি ডিটেইলস পপআপ উইন্ডো (১০-২০টি ছোট ছবির গ্যালারিসহ)
+        function triggerDetailsWindow(name, usd, bdt, desc) {
+            document.getElementById('modalProjName').innerText = name;
+            document.getElementById('modalProjPriceUSD').innerText = usd;
+            document.getElementById('modalProjPriceBDT').innerText = bdt;
+            document.getElementById('modalProjDesc').innerText = desc;
+
+            const screenshotBox = document.getElementById('screenshotBox');
+            screenshotBox.innerHTML = ''; 
+            // লুপের মাধ্যমে ২০টি সুনির্দিষ্ট প্রিভিউ ইমেজ ঘর জেনারেট করা হচ্ছে
+            for (let i = 1; i <= 20; i++) {
+                const thumb = document.createElement('div');
+                thumb.className = 'screen-thumb';
+                thumb.innerText = 'SCREEN ' + i;
+                screenshotBox.appendChild(thumb);
+            }
+            document.getElementById('detailsModal').classList.remove('hidden');
+        }
+
+        function closeDetails() {
+            document.getElementById('detailsModal').classList.add('hidden');
+        }
+
+        // ইঞ্জিন স্টার্ট
+        runPremiumAuthEngine();
+    </script>
+</body>
+</html>
