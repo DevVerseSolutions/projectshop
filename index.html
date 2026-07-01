@@ -3,87 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Product Store</title>
-    <!-- Tailwind CSS for styling -->
+    <title>ই-ফার্মার্স প্রজেক্টস</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Firebase App and Database SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    
+    <link href="https://fonts.googleapis.com/css2?family=Hind_Siliguri:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        /* কাস্টম থিম কালার */
-        .theme-bg { background-color: #22c55e; } /* Green-500 */
-        .theme-text { color: #16a34a; } /* Green-600 */
-        .theme-btn:hover { background-color: #15803d; } /* Green-700 */
+        body { font-family: 'Hind Siliguri', sans-serif; background-color: #ffffff; }
     </style>
 </head>
-<body class="bg-white text-gray-800 font-sans min-h-screen">
+<body class="bg-white text-gray-800 flex flex-col min-h-screen">
 
-    <!-- ১. টেলিগ্রাম বট ও ভেরিফিকেশন পপআপ (Modal) -->
-    <div id="telegram-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 px-4">
-        <div class="bg-white rounded-lg shadow-2xl max-w-sm w-full p-6 text-center border-t-8 border-green-500 animate-fade-in">
-            <!-- বটের লোগো/আইকন -->
-            <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg class="w-12 h-12 text-blue-500" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15.15-.31.3-.47.45l-7.14 6.4c-.2.18-.46.28-.73.28-.22 0-.44-.06-.63-.18l-3.2-2c-.42-.26-.54-.82-.28-1.24.26-.42.82-.54 1.24-.28l2.42 1.51 6.36-5.7c.37-.33.94-.3 1.27.07.33.38.3.95-.07 1.27z"/>
-                </svg>
+    <!-- নোটিস বার -->
+    <div class="bg-green-600 text-white text-center py-2 px-4 text-sm font-semibold tracking-wide">
+        🌾 আমাদের কৃষি প্রজেক্টের স্ক্রিনশটগুলো ভিউ করে দেখুন এবং সহজেই টেলিগ্রামে অর্ডার করুন!
+    </div>
+
+    <!-- হেডার -->
+    <header class="border-b border-gray-200 py-6 sticky top-0 bg-white z-40 shadow-sm">
+        <div class="container mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div>
+                <h1 class="text-2xl font-bold text-green-700">ই-ফার্মার্স (e-Farmers)</h1>
+                <p class="text-xs text-gray-500">আধুনিক কৃষির ডিজিটাল সমাধান</p>
             </div>
-            <h2 class="text-xl font-bold text-gray-900 mb-2">Product Store Bot</h2>
-            <p class="text-sm text-gray-600 mb-6">ওয়েবসাইটে প্রবেশ করতে এবং রিয়েল-টাইম প্রোডাক্ট দেখতে আমাদের টেলিগ্রাম চ্যানেলে যুক্ত হয়ে ভেরিফাই করুন।</p>
             
-            <!-- চ্যানেলে জয়েন করার বাটন -->
-            <a href="https://t.me/YOUR_CHANNEL_USERNAME" target="_blank" onclick="enableVerifyBtn()" class="block w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2.5 px-4 rounded-md mb-3 transition duration-200">
-                📢 জয়েন চ্যানেল
-            </a>
+            <div class="flex items-center gap-3">
+                <button onclick="openSupportModal()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 px-5 rounded-lg border border-gray-300 transition">
+                    📞 সাপোর্ট (Support)
+                </button>
+                <a id="nav-order-btn" href="#" target="_blank" class="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2.5 px-6 rounded-lg shadow transition transform hover:scale-105 inline-block">
+                    🛒 অর্ডার করুন
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- প্রজেক্ট গ্রিড -->
+    <main class="container mx-auto px-4 py-10 flex-grow">
+        <h2 class="text-xl font-bold text-gray-700 mb-6 border-l-4 border-green-600 pl-2">আমাদের প্রজেক্ট সমূহ</h2>
+        
+        <div id="loading" class="text-center py-10 font-semibold text-gray-500">লোড হচ্ছে...</div>
+
+        <div id="project-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 hidden"></div>
+    </main>
+
+    <!-- ভিউ মোডাল (ইমেজ স্লাইডার সহ) -->
+    <div id="view-modal" class="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-xl max-w-2xl w-full max-h-[95vh] overflow-y-auto p-6 relative shadow-2xl">
+            <button onclick="closeViewModal()" class="absolute top-4 right-4 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full w-8 h-8 flex items-center justify-center font-bold text-xl z-10">&times;</button>
             
-            <!-- ভেরিফাই বাটন -->
-            <button id="verify-btn" onclick="verifyUser()" disabled class="w-full bg-gray-300 text-gray-500 font-medium py-2.5 px-4 rounded-md cursor-not-allowed transition duration-200">
-                ✅ ভেরিফাই করুন
-            </button>
+            <!-- স্লাইডার এরিয়া -->
+            <div class="relative w-full h-64 md:h-80 bg-gray-100 rounded-lg mb-4 overflow-hidden group border">
+                <img id="modal-slider-img" src="" alt="Project Screenshot" class="w-full h-full object-contain">
+                
+                <!-- নেভিগেশন বাটনসমূহ -->
+                <button onclick="prevImage()" class="absolute left-2 top-1/2 -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white p-2 rounded-full font-bold text-lg focus:outline-none">❮</button>
+                <button onclick="nextImage()" class="absolute right-2 top-1/2 -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white p-2 rounded-full font-bold text-lg focus:outline-none">❯</button>
+                
+                <!-- ইমেজ কাউন্টার ইন্ডিকেটর -->
+                <div id="image-counter" class="absolute bottom-2 right-2 bg-black bg-opacity-60 text-white px-2 py-1 text-xs rounded font-semibold">১/১</div>
+            </div>
+
+            <h3 id="modal-title" class="text-2xl font-bold text-green-700 mb-2"></h3>
+            
+            <div class="flex gap-4 mb-4 text-sm font-semibold">
+                <span class="text-green-600 bg-green-50 px-3 py-1 rounded" id="modal-price-bdt"></span>
+                <span class="text-blue-600 bg-blue-50 px-3 py-1 rounded" id="modal-price-usd"></span>
+            </div>
+            
+            <p id="modal-desc" class="text-gray-600 leading-relaxed mb-6 whitespace-pre-line"></p>
+            
+            <div class="border-t pt-4 flex justify-end">
+                <a id="modal-order-link" href="#" target="_blank" class="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2.5 px-6 rounded-lg shadow transition inline-block">
+                    🛒 অর্ডার করুন
+                </a>
+            </div>
         </div>
     </div>
 
-    <!-- ২. মূল ওয়েবসাইট কন্টেন্ট -->
-    <div id="main-content" class="blur-sm pointer-events-none transition-all duration-500">
-        
-        <!-- হেডার / নেভিগেশন -->
-        <header class="theme-bg text-white shadow-md sticky top-0 z-40">
-            <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-                <h1 class="text-2xl font-black tracking-wide">PRODUCT STORE</h1>
-                <span class="bg-white theme-text text-xs font-bold px-3 py-1 rounded-full uppercase shadow">Realtime Live</span>
+    <!-- সাপোর্ট মোডাল -->
+    <div id="support-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-xl max-w-md w-full p-6 relative shadow-2xl">
+            <button onclick="closeSupportModal()" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-2xl font-bold">&times;</button>
+            <h3 class="text-xl font-bold text-gray-800 mb-2 border-b pb-2 text-center text-green-700">আমাদের অফিশিয়াল সাপোর্ট</h3>
+            <div class="space-y-3 mt-4">
+                <a id="link-tg-channel" href="#" target="_blank" class="flex items-center justify-between p-3 bg-blue-50 hover:bg-blue-100 rounded-lg text-blue-700 font-semibold transition"><span>📢 টেলিগ্রাম চ্যানেল</span>➔</a>
+                <a id="link-tg-admin" href="#" target="_blank" class="flex items-center justify-between p-3 bg-cyan-50 hover:bg-cyan-100 rounded-lg text-cyan-700 font-semibold transition"><span>🧑‍💻 এডমিন আইডি</span>➔</a>
+                <a id="link-fb-page" href="#" target="_blank" class="flex items-center justify-between p-3 bg-indigo-50 hover:bg-indigo-100 rounded-lg text-indigo-700 font-semibold transition"><span>📘 ফেসবুক পেজ</span>➔</a>
+                <a id="link-yt-channel" href="#" target="_blank" class="flex items-center justify-between p-3 bg-red-50 hover:bg-red-100 rounded-lg text-red-700 font-semibold transition"><span>🔴 ইউটিউব চ্যানেল</span>➔</a>
             </div>
-        </header>
-
-        <!-- ব্যানার এবং তথ্য -->
-        <section class="bg-gray-50 py-8 border-b border-gray-100">
-            <div class="container mx-auto px-4 text-center">
-                <h2 class="text-3xl font-extrabold text-gray-900 mb-2">আমাদের প্রোডাক্ট কালেকশন</h2>
-                <p class="text-gray-600 max-w-md mx-auto text-sm">নিচে আমাদের স্টোরের সকল প্রোডাক্টের লাইভ স্টক, মূল্য এবং বিস্তারিত বিবরণ দেখতে পারবেন।</p>
-            </div>
-        </section>
-
-        <!-- প্রোডাক্ট গ্রিড সেকশন -->
-        <main class="container mx-auto px-4 py-10">
-            <!-- লোডিং অ্যানিমেশন -->
-            <div id="loading" class="flex justify-center items-center py-20">
-                <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
-            </div>
-
-            <!-- প্রোডাক্ট কার্ডস কন্টেইনার -->
-            <div id="product-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 hidden">
-                <!-- জাভাস্ক্রিপ্টের মাধ্যমে এখানে প্রোডাক্ট যোগ হবে -->
-            </div>
-        </main>
-
-        <!-- ফুটার -->
-        <footer class="bg-gray-100 text-center py-6 border-t border-gray-200 mt-12">
-            <p class="text-sm text-gray-500">&copy; 2026 Product Store. All Rights Reserved. Powered by Firebase & Telegram.</p>
-        </footer>
+        </div>
     </div>
 
-    <!-- Firebase এবং বট লজিক জাভাস্ক্রিপ্ট -->
-    <script>
-        // কোড ব্যবহারের পূর্বে আপনার নিজস্ব Firebase ক্রেডেনশিয়াল এখানে বসান
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        // রিয়েলটাইম ডেটাবেস মডিউল ইমপোর্ট করা হলো
+        import { getDatabase, ref, child, get } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+
         const firebaseConfig = {
   apiKey: "AIzaSyBnRAb4evxkfnJRHHARS1lGQfnnLq1bJI0",
   authDomain: "projectshop-26319.firebaseapp.com",
@@ -94,96 +108,111 @@
   appId: "1:381864277377:web:c3a1018bfa65fe6108e480",
   measurementId: "G-3L1T3G84NT"
 };
-        // ফায়ารবেস ইনিশিয়াল করা
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
 
-        // ১. টেলিগ্রাম বট পপআপ হ্যান্ডলিং
-        function enableVerifyBtn() {
-            const verifyBtn = document.getElementById('verify-btn');
-            verifyBtn.disabled = false;
-            verifyBtn.classList.remove('bg-gray-300', 'text-gray-500', 'cursor-not-allowed');
-            verifyBtn.classList.add('theme-bg', 'text-white', 'theme-btn');
-        }
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const dbRef = ref(db);
 
-        function verifyUser() {
-            // পপআপ হাইড করা এবং ব্লার ইফেক্ট তুলে নেওয়া
-            document.getElementById('telegram-modal').classList.add('hidden');
-            const mainContent = document.getElementById('main-content');
-            mainContent.classList.remove('blur-sm', 'pointer-events-none');
-            
-            // ডাটাবেস থেকে প্রোডাক্ট লোড করা শুরু করা
-            loadProducts();
-        }
+        window.currentProjects = [];
 
-        // ২. ফায়ারবেস থেকে রিয়েল-টাইম ডেটা রিড করা
-        function loadProducts() {
-            const productContainer = document.getElementById('product-container');
-            const loading = document.getElementById('loading');
-            
-            // ডাটাবেসের 'products' নোড থেকে রিয়েলটাইম লিসেনার চালু করা
-            database.ref('products').on('value', (snapshot) => {
-                productContainer.innerHTML = ''; // পূর্বের ডেটা ক্লিয়ার করা
+        async function initApp() {
+            try {
+                const settingsSnap = await get(child(dbRef, "settings/links"));
+                if (settingsSnap.exists()) {
+                    const links = settingsSnap.val();
+                    if(links.telegram_order) {
+                        document.getElementById('nav-order-btn').href = links.telegram_order;
+                        document.getElementById('modal-order-link').href = links.telegram_order;
+                    }
+                    if(links.telegram_channel) document.getElementById('link-tg-channel').href = links.telegram_channel;
+                    if(links.telegram_admin) document.getElementById('link-tg-admin').href = links.telegram_admin;
+                    if(links.facebook_page) document.getElementById('link-fb-page').href = links.facebook_page;
+                    if(links.youtube_channel) document.getElementById('link-yt-channel').href = links.youtube_channel;
+                }
+
+                const snapshot = await get(child(dbRef, "projects"));
+                const container = document.getElementById('project-container');
+                const loading = document.getElementById('loading');
                 
-                if (snapshot.exists()) {
-                    const data = snapshot.val();
-                    
-                    // অবজেক্ট লুপ করে প্রোডাক্ট কার্ড তৈরি
-                    for (let key in data) {
-                        const product = data[key];
-                        
-                        const card = `
-                            <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 hover:shadow-xl transition duration-300 flex flex-col">
-                                <!-- প্রোডাক্ট ছবি -->
-                                <div class="h-48 bg-gray-100 flex items-center justify-center overflow-hidden">
-                                    <img src="${product.image || 'https://via.placeholder.com/300'}" alt="${product.name}" class="object-cover h-full w-full hover:scale-105 transition duration-300">
+                container.innerHTML = '';
+                if(!snapshot.exists()) { loading.innerHTML = "কোনো প্রজেক্ট পাওয়া যায়নি।"; return; }
+
+                const projectsData = snapshot.val();
+                Object.keys(projectsData).forEach((key) => {
+                    const project = projectsData[key];
+                    project.id = key;
+                    window.currentProjects.push(project);
+
+                    const cardImg = (project.images && project.images.length > 0) ? project.images[0] : 'https://via.placeholder.com/400x250';
+
+                    const cardHTML = `
+                        <div class="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition">
+                            <img src="${cardImg}" alt="${project.name}" class="w-full h-48 object-cover">
+                            <div class="p-5">
+                                <h3 class="text-lg font-bold text-gray-800 mb-2 line-clamp-1">${project.name}</h3>
+                                <div class="flex justify-between items-center mb-4 text-sm font-semibold">
+                                    <span class="text-green-600">৳ ${project.price_bdt} টাকা</span>
+                                    <span class="text-blue-600">$ ${project.price_usd} USD</span>
                                 </div>
-                                <!-- প্রোডাক্ট বিবরণী -->
-                                <div class="p-5 flex-grow flex flex-col justify-between">
-                                    <div>
-                                        <h3 class="text-lg font-bold text-gray-900 mb-1 truncate">${product.name}</h3>
-                                        <p class="text-gray-500 text-xs mb-3 line-clamp-2">${product.description || 'কোনো বিবরণ দেওয়া নেই।'}</p>
-                                    </div>
-                                    <div class="flex items-center justify-between mt-4 pt-3 border-t border-gray-50">
-                                        <span class="text-xs text-gray-400 uppercase font-semibold tracking-wider">মূল্য</span>
-                                        <span class="text-xl font-black text-green-600">$${product.price}</span>
-                                    </div>
+                                <div class="flex gap-2">
+                                    <button onclick="openViewModal('${project.id}')" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2 rounded-lg text-center transition">👁️ ভিউ (View)</button>
+                                    <a href="${document.getElementById('nav-order-btn').href}" target="_blank" class="flex-1 bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 rounded-lg text-center transition">অর্ডার করুন</a>
                                 </div>
                             </div>
-                        `;
-                        productContainer.innerHTML += card;
-                    }
-                    
-                    loading.classList.add('hidden');
-                    productContainer.classList.remove('hidden');
-                } else {
-                    // কোনো প্রোডাক্ট না থাকলে
-                    productContainer.innerHTML = '<p class="text-center col-span-full py-10 text-gray-500">স্টোরে বর্তমানে কোনো প্রোডাক্ট উপলব্ধ নেই।</p>';
-                    loading.classList.add('hidden');
-                    productContainer.classList.remove('hidden');
-                }
-            });
+                        </div>
+                    `;
+                    container.innerHTML += cardHTML;
+                });
+
+                loading.classList.add('hidden');
+                container.classList.remove('hidden');
+            } catch (error) { console.error(error); }
+        }
+        window.addEventListener('DOMContentLoaded', initApp);
+    </script>
+
+    <!-- স্লাইডার এবং মোডাল কন্ট্রোল লজিক -->
+    <script>
+        let activeImages = [];
+        let currentImgIndex = 0;
+
+        function openViewModal(id) {
+            const project = window.currentProjects.find(p => p.id === id);
+            if (!project) return;
+
+            document.getElementById('modal-title').innerText = project.name;
+            document.getElementById('modal-price-bdt').innerText = `৳ ${project.price_bdt} টাকা`;
+            document.getElementById('modal-price-usd').innerText = `$ ${project.price_usd} USD`;
+            document.getElementById('modal-desc').innerText = project.description;
+
+            activeImages = project.images || ['https://via.placeholder.com/400x250'];
+            currentImgIndex = 0;
+            updateSliderImage();
+
+            document.getElementById('view-modal').classList.remove('hidden');
         }
 
-        // Firebase Realtime Database-এ যেভাবে ডেটা স্ট্রাকচার (JSON) থাকবে তার একটি নমুনা:
-        /*
-        {
-          "products": {
-            "p1": {
-              "name": "প্রিমিয়াম ওয়্যারলেস হেডফোন",
-              "price": "49.99",
-              "description": "উচ্চ মানের বেস এবং দীর্ঘস্থায়ী ব্যাটারি ব্যাকআপ সম্পন্ন হেডফোন।",
-              "image": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e"
-            },
-            "p2": {
-              "name": "স্মার্ট ওয়াচ সিরিজ ৭",
-              "price": "99.00",
-              "description": "রিয়েল-টাইম হার্ট রেট মনিটর এবং ওয়াটারপ্রুফ ডিসপ্লে সহ স্মার্ট ওয়াচ।",
-              "image": "https://images.unsplash.com/photo-1523275335684-37898b6baf30"
-            }
-          }
+        function updateSliderImage() {
+            if(activeImages.length === 0) return;
+            document.getElementById('modal-slider-img').src = activeImages[currentImgIndex];
+            document.getElementById('image-counter').innerText = `${currentImgIndex + 1} / ${activeImages.length}`;
         }
-        */
+
+        function nextImage() {
+            if(activeImages.length <= 1) return;
+            currentImgIndex = (currentImgIndex + 1) % activeImages.length;
+            updateSliderImage();
+        }
+
+        function prevImage() {
+            if(activeImages.length <= 1) return;
+            currentImgIndex = (currentImgIndex - 1 + activeImages.length) % activeImages.length;
+            updateSliderImage();
+        }
+
+        function closeViewModal() { document.getElementById('view-modal').classList.add('hidden'); }
+        function openSupportModal() { document.getElementById('support-modal').classList.remove('hidden'); }
+        function closeSupportModal() { document.getElementById('support-modal').classList.add('hidden'); }
     </script>
 </body>
 </html>
