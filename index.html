@@ -3,216 +3,228 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project Store</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Hind_Siliguri:wght@400;600;700&display=swap" rel="stylesheet">
+    <title>Project Store| Premium Portfolio</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { font-family: 'Hind Siliguri', sans-serif; background-color: #ffffff; }
+        body { background-color: #ffffff; color: #0f172a; font-family: 'Segoe UI', system-ui, sans-serif; }
     </style>
 </head>
-<body class="bg-white text-gray-800 flex flex-col min-h-screen">
+<body class="bg-white">
 
-    <!-- নোটিস বার -->
-    <div class="bg-green-600 text-white text-center py-2 px-4 text-sm font-semibold tracking-wide">
-         আপনার ইচ্ছা মতন আপনি ওয়েবসাইট বা Apps তৈরি করে নিতে পারবেন আমাদের কাছ থেকে!
-    </div>
-
-    <!-- হেডার -->
-    <header class="border-b border-gray-200 py-6 sticky top-0 bg-white z-40 shadow-sm">
-        <div class="container mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-4">
-            <div>
-                <h1 class="text-2xl font-bold text-green-700">Project Store</h1>
-                <p class="text-xs text-gray-500">আবার ফিরে আসার জন্য ধন্যবাদ</p>
-            </div>
-            
-            <div class="flex items-center gap-3">
-                <button onclick="openSupportModal()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 px-5 rounded-lg border border-gray-300 transition">
-                    📞 সাপোর্ট (Support)
-                </button>
-                <a id="nav-order-btn" href="#" target="_blank" class="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2.5 px-6 rounded-lg shadow transition transform hover:scale-105 inline-block">
-                    🛒 অর্ডার করুন
-                </a>
-            </div>
+    <!-- Navbar -->
+    <header class="sticky top-0 bg-white/90 backdrop-blur-md z-40 border-b border-slate-100">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+            <span class="text-base font-black tracking-wider uppercase">Project<span class="text-blue-600">Store</span></span>
+            <span class="text-[10px] font-mono text-slate-400 bg-slate-50 px-2.5 py-1 rounded-full border border-slate-100">Available for Projects</span>
         </div>
     </header>
 
-    <!-- প্রজেক্ট গ্রিড -->
-    <main class="container mx-auto px-4 py-10 flex-grow">
-        <h2 class="text-xl font-bold text-gray-700 mb-6 border-l-4 border-green-600 pl-2">আমাদের প্রজেক্ট সমূহ</h2>
+    <!-- Hero Header -->
+    <section class="max-w-3xl mx-auto px-4 pt-10 pb-6 text-center">
+        <h1 class="text-2xl md:text-4xl font-black text-slate-900 tracking-tight mb-2">আমাদের তৈরি প্রজেক্ট গ্যালারি</h1>
+        <p class="text-[11px] md:text-xs text-slate-500 max-w-xl mx-auto">নিচের প্রজেক্টগুলোর ওপর ক্লিক করে বিবরণ, ডেমো এবং সরাসরি অর্ডার করার অপশন দেখে নিন।</p>
+    </section>
+
+    <!-- 2 COLUMN GRID WITH PREVIEW IMAGES -->
+    <section class="max-w-6xl mx-auto px-4 py-2 mb-20">
+        <div id="projectsGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+            <div id="loadingText" class="col-span-full text-center py-10 text-xs text-slate-400">প্রজেক্ট লোড হচ্ছে...</div>
+        </div>
+    </section>
+
+    <!-- FULL SCREEN DYNAMIC MODAL (পিকচার ফুল ভিউ ফিক্সড) -->
+    <div id="projectModal" class="fixed inset-0 bg-white z-50 flex flex-col hidden overflow-y-auto">
         
-        <div id="loading" class="text-center py-10 font-semibold text-gray-500">লোড হচ্ছে...</div>
-
-        <div id="project-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 hidden"></div>
-    </main>
-
-    <!-- ভিউ মোডাল (ইমেজ স্লাইডার সহ) -->
-    <div id="view-modal" class="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-xl max-w-2xl w-full max-h-[95vh] overflow-y-auto p-6 relative shadow-2xl">
-            <button onclick="closeViewModal()" class="absolute top-4 right-4 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full w-8 h-8 flex items-center justify-center font-bold text-xl z-10">&times;</button>
+        <!-- Image Slider - পিকচার সম্পূর্ণ স্পষ্ট এবং ফুল স্ক্রিন দেখার জন্য হাইট ও ফিট অ্যাডজাস্ট করা হয়েছে -->
+        <div class="relative bg-slate-950 h-[50vh] md:h-[65vh] flex items-center justify-center overflow-hidden shrink-0">
+            <img id="modalImg" src="" alt="Project Look" class="w-full h-full object-contain">
             
-            <!-- স্লাইডার এরিয়া -->
-            <div class="relative w-full h-64 md:h-80 bg-gray-100 rounded-lg mb-4 overflow-hidden group border">
-                <img id="modal-slider-img" src="" alt="Project Screenshot" class="w-full h-full object-contain">
-                
-                <!-- নেভিগেশন বাটনসমূহ -->
-                <button onclick="prevImage()" class="absolute left-2 top-1/2 -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white p-2 rounded-full font-bold text-lg focus:outline-none">❮</button>
-                <button onclick="nextImage()" class="absolute right-2 top-1/2 -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white p-2 rounded-full font-bold text-lg focus:outline-none">❯</button>
-                
-                <!-- ইমেজ কাউন্টার ইন্ডিকেটর -->
-                <div id="image-counter" class="absolute bottom-2 right-2 bg-black bg-opacity-60 text-white px-2 py-1 text-xs rounded font-semibold">১/১</div>
+            <!-- Slide Buttons -->
+            <button onclick="prevSlide()" class="absolute left-4 bg-black/40 backdrop-blur-md text-white w-9 h-9 rounded-full flex items-center justify-center hover:bg-white hover:text-black transition cursor-pointer z-10"><i class="fas fa-chevron-left text-sm"></i></button>
+            <button onclick="nextSlide()" class="absolute right-4 bg-black/40 backdrop-blur-md text-white w-9 h-9 rounded-full flex items-center justify-center hover:bg-white hover:text-black transition cursor-pointer z-10"><i class="fas fa-chevron-right text-sm"></i></button>
+            
+            <!-- Counter -->
+            <div id="modalCounter" class="absolute bottom-4 left-4 bg-black/60 text-white text-xs font-mono px-2.5 py-1 rounded">01 / 01</div>
+            <!-- Close Button -->
+            <button onclick="closeProjectModal()" class="absolute top-4 right-4 bg-black/60 text-white w-9 h-9 rounded-full flex items-center justify-center hover:bg-white hover:text-black transition cursor-pointer z-10"><i class="fas fa-times text-sm"></i></button>
+        </div>
+
+        <!-- Content Details Area -->
+        <div class="max-w-xl mx-auto w-full p-5 space-y-5 pb-24">
+            <div>
+                <span id="modalBadge" class="text-[10px] uppercase tracking-wider font-extrabold px-2.5 py-1 rounded-md">Category</span>
+                <h2 id="modalTitle" class="text-lg font-black text-slate-900 mt-1.5">Project Name</h2>
             </div>
 
-            <h3 id="modal-title" class="text-2xl font-bold text-green-700 mb-2"></h3>
-            
-            <div class="flex gap-4 mb-4 text-sm font-semibold">
-                <span class="text-green-600 bg-green-50 px-3 py-1 rounded" id="modal-price-bdt"></span>
-                <span class="text-blue-600 bg-blue-50 px-3 py-1 rounded" id="modal-price-usd"></span>
+            <!-- Description -->
+            <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                <h4 class="text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-2">প্রজেক্ট ডেসক্রিপশন</h4>
+                <p id="modalDesc" class="text-xs text-slate-600 leading-relaxed whitespace-pre-line font-medium"></p>
             </div>
-            
-            <p id="modal-desc" class="text-gray-600 leading-relaxed mb-6 whitespace-pre-line"></p>
-            
-            <div class="border-t pt-4 flex justify-end">
-                <a id="modal-order-link" href="#" target="_blank" class="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2.5 px-6 rounded-lg shadow transition inline-block">
-                    🛒 অর্ডার করুন
+
+            <!-- Price Area -->
+            <div class="bg-blue-50/50 border border-blue-100 p-3.5 rounded-xl flex justify-between items-center">
+                <span class="text-xs font-bold text-slate-700">প্রজেক্ট মূল্য (Price):</span>
+                <div class="text-right">
+                    <span id="priceBDT" class="text-sm font-black text-blue-600 block">৳0.00</span>
+                    <span id="priceUSD" class="text-[11px] font-bold text-slate-500 block">$0.00</span>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="grid grid-cols-2 gap-4 pt-2">
+                <a id="btnDemo" href="#" target="_blank" class="bg-slate-100 text-slate-800 py-3 rounded-xl font-bold text-xs uppercase tracking-wider hover:bg-slate-200 transition text-center flex items-center justify-center gap-1.5">
+                    <i class="fas fa-external-link-alt"></i> লাইভ ডেমো
+                </a>
+                <a id="btnOrder" href="#" target="_blank" class="bg-blue-600 text-white py-3 rounded-xl font-bold text-xs uppercase tracking-wider hover:bg-blue-700 transition text-center flex items-center justify-center gap-1.5">
+                    <i class="fab fa-telegram-plane"></i> অর্ডার করুন
                 </a>
             </div>
         </div>
     </div>
 
-    <!-- সাপোর্ট মোডাল -->
-    <div id="support-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-xl max-w-md w-full p-6 relative shadow-2xl">
-            <button onclick="closeSupportModal()" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-2xl font-bold">&times;</button>
-            <h3 class="text-xl font-bold text-gray-800 mb-2 border-b pb-2 text-center text-green-700">আমাদের অফিশিয়াল সাপোর্ট</h3>
-            <div class="space-y-3 mt-4">
-                <a id="link-tg-channel" href="#" target="_blank" class="flex items-center justify-between p-3 bg-blue-50 hover:bg-blue-100 rounded-lg text-blue-700 font-semibold transition"><span>📢 টেলিগ্রাম চ্যানেল</span>➔</a>
-                <a id="link-tg-admin" href="#" target="_blank" class="flex items-center justify-between p-3 bg-cyan-50 hover:bg-cyan-100 rounded-lg text-cyan-700 font-semibold transition"><span>🧑‍💻 এডমিন আইডি</span>➔</a>
-                <a id="link-fb-page" href="#" target="_blank" class="flex items-center justify-between p-3 bg-indigo-50 hover:bg-indigo-100 rounded-lg text-indigo-700 font-semibold transition"><span>📘 ফেসবুক পেজ</span>➔</a>
-                <a id="link-yt-channel" href="#" target="_blank" class="flex items-center justify-between p-3 bg-red-50 hover:bg-red-100 rounded-lg text-red-700 font-semibold transition"><span>🔴 ইউটিউব চ্যানেল</span>➔</a>
-            </div>
-        </div>
-    </div>
+    <!-- Footer -->
+    <footer class="bg-white py-6 text-center text-[10px] font-mono text-slate-400 border-t border-slate-100">
+        <p>&copy; 2026 DEVSTUDIO. ALL RIGHTS RESERVED.</p>
+    </footer>
 
+    <!-- Database and UI Logic via Firebase -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-        // রিয়েলটাইম ডেটাবেস মডিউল ইমপোর্ট করা হলো
-        import { getDatabase, ref, child, get } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
-  apiKey: "AIzaSyBnRAb4evxkfnJRHHARS1lGQfnnLq1bJI0",
-  authDomain: "projectshop-26319.firebaseapp.com",
-  databaseURL: "https://projectshop-26319-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "projectshop-26319",
-  storageBucket: "projectshop-26319.firebasestorage.app",
-  messagingSenderId: "381864277377",
-  appId: "1:381864277377:web:c3a1018bfa65fe6108e480",
-  measurementId: "G-3L1T3G84NT"
-};
+            apiKey: "AIzaSyC2ZuRIq7V7TKVOwA9JFQ2JMtlRzUSubaQ",
+            authDomain: "devverse-solutions-9fe14.firebaseapp.com",
+            projectId: "devverse-solutions-9fe14",
+            storageBucket: "devverse-solutions-9fe14.firebasestorage.app",
+            messagingSenderId: "233264348269",
+            appId: "1:233264348269:web:aadb42c38d711f5cb89364",
+            measurementId: "G-5LMZYPKB51"
+        };
 
         const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-        const dbRef = ref(db);
+        const db = getFirestore(app);
 
-        window.currentProjects = [];
+        window.firebaseDatabase = {};
 
-        async function initApp() {
+        async function loadProjects() {
+            const grid = document.getElementById('projectsGrid');
             try {
-                const settingsSnap = await get(child(dbRef, "settings/links"));
-                if (settingsSnap.exists()) {
-                    const links = settingsSnap.val();
-                    if(links.telegram_order) {
-                        document.getElementById('nav-order-btn').href = links.telegram_order;
-                        document.getElementById('modal-order-link').href = links.telegram_order;
-                    }
-                    if(links.telegram_channel) document.getElementById('link-tg-channel').href = links.telegram_channel;
-                    if(links.telegram_admin) document.getElementById('link-tg-admin').href = links.telegram_admin;
-                    if(links.facebook_page) document.getElementById('link-fb-page').href = links.facebook_page;
-                    if(links.youtube_channel) document.getElementById('link-yt-channel').href = links.youtube_channel;
-                }
+                const querySnapshot = await getDocs(collection(db, "portfolio_projects"));
+                grid.innerHTML = '';
+                let hasData = false;
 
-                const snapshot = await get(child(dbRef, "projects"));
-                const container = document.getElementById('project-container');
-                const loading = document.getElementById('loading');
-                
-                container.innerHTML = '';
-                if(!snapshot.exists()) { loading.innerHTML = "কোনো প্রজেক্ট পাওয়া যায়নি।"; return; }
+                querySnapshot.forEach((docSnap) => {
+                    hasData = true;
+                    const id = docSnap.id;
+                    const data = docSnap.data();
 
-                const projectsData = snapshot.val();
-                Object.keys(projectsData).forEach((key) => {
-                    const project = projectsData[key];
-                    project.id = key;
-                    window.currentProjects.push(project);
+                    window.firebaseDatabase[id] = data;
 
-                    const cardImg = (project.images && project.images.length > 0) ? project.images[0] : 'https://via.placeholder.com/400x250';
-
-                    const cardHTML = `
-                        <div class="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition">
-                            <img src="${cardImg}" alt="${project.name}" class="w-full h-48 object-cover">
-                            <div class="p-5">
-                                <h3 class="text-lg font-bold text-gray-800 mb-2 line-clamp-1">${project.name}</h3>
-                                <div class="flex justify-between items-center mb-4 text-sm font-semibold">
-                                    <span class="text-green-600">৳ ${project.price_bdt} টাকা</span>
-                                    <span class="text-blue-600">$ ${project.price_usd} USD</span>
+                    grid.innerHTML += `
+                        <div class="bg-white border border-slate-200 p-2.5 rounded-xl flex flex-col justify-between h-56 transition hover:border-blue-600">
+                            <div>
+                                <div class="w-full h-24 bg-slate-100 rounded-lg overflow-hidden mb-2">
+                                    <img src="${data.thumb || 'https://via.placeholder.com/300'}" alt="${data.title}" class="w-full h-full object-cover">
                                 </div>
-                                <div class="flex gap-2">
-                                    <button onclick="openViewModal('${project.id}')" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2 rounded-lg text-center transition">👁️ ভিউ (View)</button>
-                                    <a href="${document.getElementById('nav-order-btn').href}" target="_blank" class="flex-1 bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 rounded-lg text-center transition">অর্ডার করুন</a>
-                                </div>
+                                <span class="text-[9px] font-bold text-blue-600 uppercase tracking-wider block mb-0.5">${data.badge}</span>
+                                <h3 class="text-xs font-bold text-slate-900 leading-tight line-clamp-2">${data.title}</h3>
                             </div>
+                            <button onclick="openProjectModal('${id}')" class="w-full bg-slate-950 text-white py-1.5 rounded-lg text-[11px] font-semibold hover:bg-blue-600 transition cursor-pointer">
+                                দেখুন (View)
+                            </button>
                         </div>
                     `;
-                    container.innerHTML += cardHTML;
                 });
 
-                loading.classList.add('hidden');
-                container.classList.remove('hidden');
-            } catch (error) { console.error(error); }
+                if(!hasData) {
+                    grid.innerHTML = '<div class="col-span-full text-center py-10 text-xs text-slate-400">কোনো প্রজেক্ট পাওয়া যায়নি।</div>';
+                }
+
+            } catch (error) {
+                console.error(error);
+                grid.innerHTML = '<div class="col-span-full text-center py-10 text-xs text-red-500">ডাটা লোড করতে সমস্যা হয়েছে!</div>';
+            }
         }
-        window.addEventListener('DOMContentLoaded', initApp);
+
+        loadProjects();
     </script>
 
-    <!-- স্লাইডার এবং মোডাল কন্ট্রোল লজিক -->
+    <!-- Modal Slider Controllers -->
     <script>
-        let activeImages = [];
-        let currentImgIndex = 0;
+        let currentProject = null;
+        let currentImgIdx = 0;
 
-        function openViewModal(id) {
-            const project = window.currentProjects.find(p => p.id === id);
-            if (!project) return;
+        function openProjectModal(id) {
+            const data = window.firebaseDatabase ? window.firebaseDatabase[id] : null;
+            if (!data) return;
 
-            document.getElementById('modal-title').innerText = project.name;
-            document.getElementById('modal-price-bdt').innerText = `৳ ${project.price_bdt} টাকা`;
-            document.getElementById('modal-price-usd').innerText = `$ ${project.price_usd} USD`;
-            document.getElementById('modal-desc').innerText = project.description;
+            currentProject = data;
+            currentImgIdx = 0;
 
-            activeImages = project.images || ['https://via.placeholder.com/400x250'];
-            currentImgIndex = 0;
-            updateSliderImage();
+            document.getElementById('modalTitle').innerText = data.title;
+            document.getElementById('modalBadge').innerText = data.badge;
+            document.getElementById('modalBadge').className = `text-[10px] uppercase tracking-wider font-extrabold px-2.5 py-1 rounded-md bg-blue-50 text-blue-600`;
+            document.getElementById('modalDesc').innerText = data.desc;
+            document.getElementById('priceBDT').innerText = data.priceBDT;
+            document.getElementById('priceUSD').innerText = data.priceUSD;
+            
+            document.getElementById('btnDemo').href = data.demoUrl;
+            document.getElementById('btnOrder').href = data.telegramUrl;
 
-            document.getElementById('view-modal').classList.remove('hidden');
+            renderSlide();
+
+            document.getElementById('projectModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
         }
 
-        function updateSliderImage() {
-            if(activeImages.length === 0) return;
-            document.getElementById('modal-slider-img').src = activeImages[currentImgIndex];
-            document.getElementById('image-counter').innerText = `${currentImgIndex + 1} / ${activeImages.length}`;
+        function closeProjectModal() {
+            document.getElementById('projectModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
         }
 
-        function nextImage() {
-            if(activeImages.length <= 1) return;
-            currentImgIndex = (currentImgIndex + 1) % activeImages.length;
-            updateSliderImage();
+        function renderSlide() {
+            // ডাটাবেস থেকে সব ইমেজ অ্যারে চেক করা হচ্ছে
+            let list = currentProject.images || [];
+            
+            // যদি থাম্বনেইল ছবি আলাদা থাকে এবং স্লাইডার লিস্টে না থাকে, তবে সেটি লিস্টের প্রথমে পুশ করা হচ্ছে
+            if (currentProject.thumb && !list.includes(currentProject.thumb)) {
+                list = [currentProject.thumb, ...list];
+            }
+
+            if(list.length === 0) {
+                document.getElementById('modalImg').src = 'https://via.placeholder.com/800';
+                document.getElementById('modalCounter').innerText = "01 / 01";
+                return;
+            }
+            
+            document.getElementById('modalImg').src = list[currentImgIdx];
+            document.getElementById('modalCounter').innerText = `${String(currentImgIdx + 1).padStart(2, '0')} / ${String(list.length).padStart(2, '0')}`;
         }
 
-        function prevImage() {
-            if(activeImages.length <= 1) return;
-            currentImgIndex = (currentImgIndex - 1 + activeImages.length) % activeImages.length;
-            updateSliderImage();
+        function nextSlide() {
+            let list = currentProject.images || [];
+            if (currentProject.thumb && !list.includes(currentProject.thumb)) {
+                list = [currentProject.thumb, ...list];
+            }
+            if(list.length === 0) return;
+            currentImgIdx = (currentImgIdx + 1) % list.length;
+            renderSlide();
         }
 
-        function closeViewModal() { document.getElementById('view-modal').classList.add('hidden'); }
-        function openSupportModal() { document.getElementById('support-modal').classList.remove('hidden'); }
-        function closeSupportModal() { document.getElementById('support-modal').classList.add('hidden'); }
+        function prevSlide() {
+            let list = currentProject.images || [];
+            if (currentProject.thumb && !list.includes(currentProject.thumb)) {
+                list = [currentProject.thumb, ...list];
+            }
+            if(list.length === 0) return;
+            currentImgIdx = (currentImgIdx - 1 + list.length) % list.length;
+            renderSlide();
+        }
     </script>
 </body>
 </html>
