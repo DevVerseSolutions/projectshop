@@ -1,229 +1,1589 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project Store| Premium Portfolio</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <!-- FontAwesome for Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>67 Earn</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+    <!-- Telegram WebApp SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- Firebase SDK Compat -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    
     <style>
-        body { background-color: #ffffff; color: #0f172a; font-family: 'Segoe UI', system-ui, sans-serif; }
+        :root {
+            --primary: #E1122B;
+            --primary-deep: #9A0A1C;
+            --black: #121212;
+            --white: #FFFFFF;
+            --bg: #FAFAFA;
+            --card-border: #F0F0F0;
+            --text-main: #2D2D2D;
+            --text-muted: #757575;
+            --green: #2E7D32;
+            --gold: #D4AF37;
+            --shadow: 0 4px 12px rgba(225, 18, 43, 0.05);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        #app-container {
+            width: 100%;
+            max-width: 480px;
+            min-height: 100vh;
+            background-color: var(--white);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0,0,0,0.03);
+            padding-bottom: 72px; /* Bottom nav space */
+        }
+
+        /* Top Header */
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            background-color: var(--white);
+            border-bottom: 1px solid var(--card-border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .user-profile-summary {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .avatar-frame {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid var(--white);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        .avatar-frame svg {
+            width: 24px;
+            height: 24px;
+            fill: var(--white);
+        }
+
+        .user-meta-info h3 {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .tier-tag {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background-color: var(--card-border);
+            color: var(--text-muted);
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 2px;
+        }
+
+        .tier-tag.vip {
+            background-color: #FFF9E6;
+            color: var(--gold);
+            border: 1px solid var(--gold);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-main);
+            position: relative;
+        }
+
+        .icon-btn svg {
+            width: 22px;
+            height: 22px;
+        }
+
+        /* Balance Card */
+        .balance-card-wrapper {
+            padding: 16px;
+        }
+
+        .balance-card {
+            background: linear-gradient(135deg, var(--primary-deep) 0%, var(--black) 100%);
+            border-radius: 16px;
+            padding: 24px;
+            color: var(--white);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 24px rgba(154, 10, 28, 0.25);
+        }
+
+        .balance-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.8;
+            margin-bottom: 6px;
+        }
+
+        .balance-amount {
+            font-family: 'Poppins', sans-serif;
+            font-size: 36px;
+            font-weight: 700;
+            line-height: 1;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        /* Tab Content Control */
+        .tab-panel {
+            display: none;
+            padding: 16px;
+            animation: fadeIn 0.2s ease-in-out;
+        }
+
+        .tab-panel.active-panel {
+            display: block;
+        }
+
+        /* Bottom Navigation Bar */
+        .bottom-nav-bar {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 480px;
+            height: 68px;
+            background-color: var(--white);
+            border-top: 1px solid var(--card-border);
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            z-index: 1000;
+        }
+
+        .nav-tab-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 10px;
+            font-weight: 500;
+            transition: color 0.15s ease;
+        }
+
+        .nav-tab-item svg {
+            width: 20px;
+            height: 20px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+        }
+
+        .nav-tab-item.active-tab {
+            color: var(--primary);
+        }
+
+        /* Cards & Framework Blocks */
+        .ui-card {
+            background-color: var(--white);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            border-top: 3px solid var(--primary);
+            box-shadow: var(--shadow);
+        }
+
+        .ui-card-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ui-card-title svg {
+            width: 20px;
+            height: 20px;
+            stroke: var(--primary);
+            fill: none;
+            stroke-width: 2;
+        }
+
+        /* Buttons styling */
+        .action-button {
+            width: 100%;
+            min-height: 48px;
+            background-color: var(--primary);
+            color: var(--white);
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: background 0.15s ease;
+        }
+
+        .action-button:active {
+            background-color: var(--primary-deep);
+        }
+
+        .action-button svg {
+            width: 20px;
+            height: 20px;
+            stroke: var(--white);
+            fill: none;
+            stroke-width: 2;
+        }
+
+        /* Grid Utilities */
+        .earn-hub-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .hub-item-card {
+            background: var(--white);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.1s ease;
+        }
+
+        .hub-item-card:active {
+            transform: scale(0.98);
+        }
+
+        .hub-icon-wrapper {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #FFF3F4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            margin-bottom: 12px;
+        }
+
+        .hub-icon-wrapper svg {
+            width: 24px;
+            height: 24px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2;
+        }
+
+        .hub-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .hub-status-badge {
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: auto;
+        }
+
+        /* Mining Progress Ring */
+        .mining-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .progress-ring-box {
+            position: relative;
+            width: 80px;
+            height: 80px;
+        }
+
+        .progress-ring-circle {
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+
+        /* Lists layout */
+        .list-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .list-stack-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+        }
+
+        /* Toast Component */
+        .toast-popup {
+            position: fixed;
+            top: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: var(--black);
+            color: var(--white);
+            padding: 12px 20px;
+            border-radius: 30px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 10000;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+
+        .toast-popup.toast-visible {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .toast-popup svg {
+            width: 18px;
+            height: 18px;
+            fill: none;
+            stroke-width: 2;
+        }
+
+        /* Wheel Canvas Layout */
+        .game-canvas-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 16px 0;
+            position: relative;
+        }
+
+        #wheel-canvas {
+            background-color: transparent;
+            max-width: 260px;
+            width: 100%;
+        }
+
+        .wheel-pointer {
+            position: absolute;
+            top: 6px;
+            z-index: 10;
+            color: var(--primary);
+        }
+
+        .wheel-pointer svg {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+        }
+
+        /* Scratch Surface */
+        .scratch-canvas-container {
+            width: 100%;
+            max-width: 280px;
+            height: 160px;
+            position: relative;
+            margin: 0 auto;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--card-border);
+        }
+
+        .scratch-underlayer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #FFF9F9;
+            z-index: 1;
+        }
+
+        #scratch-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            cursor: crosshair;
+        }
+
+        /* Modals Frame */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        .modal-overlay.modal-active {
+            display: flex;
+        }
+
+        .modal-body {
+            background: var(--white);
+            border-radius: 16px;
+            width: 100%;
+            max-width: 400px;
+            padding: 24px;
+            position: relative;
+            animation: scaleUp 0.2s ease-out;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes scaleUp { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     </style>
 </head>
-<body class="bg-white">
+<body>
 
-    <!-- Navbar -->
-    <header class="sticky top-0 bg-white/90 backdrop-blur-md z-40 border-b border-slate-100">
-        <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
-            <span class="text-base font-black tracking-wider uppercase">Project<span class="text-blue-600">Store</span></span>
-            <span class="text-[10px] font-mono text-slate-400 bg-slate-50 px-2.5 py-1 rounded-full border border-slate-100">Available for Projects</span>
-        </div>
-    </header>
+    <!-- Inline SVG Assets Definition Block -->
+    <svg style="display: none;">
+        <symbol id="icon-home" viewBox="0 0 24 24">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+            <polyline points="9 22 9 12 15 12 15 22"/>
+        </symbol>
+        <symbol id="icon-hub" viewBox="0 0 24 24">
+            <rect x="3" y="3" width="7" height="7"/>
+            <rect x="14" y="3" width="7" height="7"/>
+            <rect x="14" y="14" width="7" height="7"/>
+            <rect x="3" y="14" width="7" height="7"/>
+        </symbol>
+        <symbol id="icon-tasks" viewBox="0 0 24 24">
+            <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/>
+            <line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
+        </symbol>
+        <symbol id="icon-referral" viewBox="0 0 24 24">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </symbol>
+        <symbol id="icon-wallet" viewBox="0 0 24 24">
+            <rect x="2" y="5" width="20" height="14" rx="2" ry="2"/>
+            <line x1="2" y1="10" x2="22" y2="10"/>
+        </symbol>
+        <symbol id="icon-leaderboard" viewBox="0 0 24 24">
+            <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
+        </symbol>
+        <symbol id="icon-profile" viewBox="0 0 24 24">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+        </symbol>
+        <symbol id="icon-bell" viewBox="0 0 24 24">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+        </symbol>
+        <symbol id="icon-play" viewBox="0 0 24 24">
+            <polygon points="5 3 19 12 5 21 5 3"/>
+        </symbol>
+        <symbol id="icon-mining" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+        </symbol>
+        <symbol id="icon-check-circle" viewBox="0 0 24 24">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+            <polyline points="22 4 12 14.01 9 11.01"/>
+        </symbol>
+        <symbol id="icon-x-circle" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
+        </symbol>
+        <symbol id="icon-arrow-growth" viewBox="0 0 24 24">
+            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+            <polyline points="17 6 23 6 23 12"/>
+        </symbol>
+        <symbol id="icon-gift" viewBox="0 0 24 24">
+            <polyline points="20 12 20 22 4 22 4 12"/>
+            <rect x="2" y="7" width="20" height="5"/>
+            <line x1="12" y1="22" x2="12" y2="7"/>
+            <path d="M12 7a3.5 3.5 0 1 1-3.5-3.5c.75 0 1.5.3 2 1a3.5 3.5 0 1 1 5 2.5z"/>
+        </symbol>
+        <symbol id="icon-star" viewBox="0 0 24 24">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+        </symbol>
+        <symbol id="icon-copy" viewBox="0 0 24 24">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+        </symbol>
+        <symbol id="icon-share" viewBox="0 0 24 24">
+            <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+        </symbol>
+    </svg>
 
-    <!-- Hero Header -->
-    <section class="max-w-3xl mx-auto px-4 pt-10 pb-6 text-center">
-        <h1 class="text-2xl md:text-4xl font-black text-slate-900 tracking-tight mb-2">আমাদের তৈরি প্রজেক্ট গ্যালারি</h1>
-        <p class="text-[11px] md:text-xs text-slate-500 max-w-xl mx-auto">নিচের প্রজেক্টগুলোর ওপর ক্লিক করে বিবরণ, ডেমো এবং সরাসরি অর্ডার করার অপশন দেখে নিন।</p>
-    </section>
-
-    <!-- 2 COLUMN GRID WITH PREVIEW IMAGES -->
-    <section class="max-w-6xl mx-auto px-4 py-2 mb-20">
-        <div id="projectsGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-            <div id="loadingText" class="col-span-full text-center py-10 text-xs text-slate-400">প্রজেক্ট লোড হচ্ছে...</div>
-        </div>
-    </section>
-
-    <!-- FULL SCREEN DYNAMIC MODAL (পিকচার ফুল ভিউ ফিক্সড) -->
-    <div id="projectModal" class="fixed inset-0 bg-white z-50 flex flex-col hidden overflow-y-auto">
+    <!-- Native App Skeleton Context -->
+    <div id="app-container">
         
-        <!-- Image Slider - পিকচার সম্পূর্ণ স্পষ্ট এবং ফুল স্ক্রিন দেখার জন্য হাইট ও ফিট অ্যাডজাস্ট করা হয়েছে -->
-        <div class="relative bg-slate-950 h-[50vh] md:h-[65vh] flex items-center justify-center overflow-hidden shrink-0">
-            <img id="modalImg" src="" alt="Project Look" class="w-full h-full object-contain">
-            
-            <!-- Slide Buttons -->
-            <button onclick="prevSlide()" class="absolute left-4 bg-black/40 backdrop-blur-md text-white w-9 h-9 rounded-full flex items-center justify-center hover:bg-white hover:text-black transition cursor-pointer z-10"><i class="fas fa-chevron-left text-sm"></i></button>
-            <button onclick="nextSlide()" class="absolute right-4 bg-black/40 backdrop-blur-md text-white w-9 h-9 rounded-full flex items-center justify-center hover:bg-white hover:text-black transition cursor-pointer z-10"><i class="fas fa-chevron-right text-sm"></i></button>
-            
-            <!-- Counter -->
-            <div id="modalCounter" class="absolute bottom-4 left-4 bg-black/60 text-white text-xs font-mono px-2.5 py-1 rounded">01 / 01</div>
-            <!-- Close Button -->
-            <button onclick="closeProjectModal()" class="absolute top-4 right-4 bg-black/60 text-white w-9 h-9 rounded-full flex items-center justify-center hover:bg-white hover:text-black transition cursor-pointer z-10"><i class="fas fa-times text-sm"></i></button>
+        <!-- App Header Bar Component -->
+        <header class="app-header">
+            <div class="user-profile-summary">
+                <div class="avatar-frame">
+                    <svg><use href="#icon-profile"></use></svg>
+                </div>
+                <div class="user-meta-info">
+                    <h3 id="top-display-name">Loading...</h3>
+                    <div id="top-vip-badge" class="tier-tag">Bronze Tier</div>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button class="icon-btn" onclick="openAlertModal('System Announcements', 'Welcome to 67 Earn! Complete tasks and claim dynamic daily rewards updates live.')">
+                    <svg style="stroke: currentColor; fill: none; stroke-width: 2;"><use href="#icon-bell"></use></svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- Balance display dynamic area -->
+        <div class="balance-card-wrapper">
+            <div class="balance-card">
+                <p class="balance-label">Available Balance</p>
+                <h1 class="balance-amount" id="balance-value-render">$0.000</h1>
+            </div>
         </div>
 
-        <!-- Content Details Area -->
-        <div class="max-w-xl mx-auto w-full p-5 space-y-5 pb-24">
-            <div>
-                <span id="modalBadge" class="text-[10px] uppercase tracking-wider font-extrabold px-2.5 py-1 rounded-md">Category</span>
-                <h2 id="modalTitle" class="text-lg font-black text-slate-900 mt-1.5">Project Name</h2>
-            </div>
-
-            <!-- Description -->
-            <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
-                <h4 class="text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-2">প্রজেক্ট ডেসক্রিপশন</h4>
-                <p id="modalDesc" class="text-xs text-slate-600 leading-relaxed whitespace-pre-line font-medium"></p>
-            </div>
-
-            <!-- Price Area -->
-            <div class="bg-blue-50/50 border border-blue-100 p-3.5 rounded-xl flex justify-between items-center">
-                <span class="text-xs font-bold text-slate-700">প্রজেক্ট মূল্য (Price):</span>
-                <div class="text-right">
-                    <span id="priceBDT" class="text-sm font-black text-blue-600 block">৳0.00</span>
-                    <span id="priceUSD" class="text-[11px] font-bold text-slate-500 block">$0.00</span>
+        <!-- TAB 1: HOME PANEL -->
+        <div id="panel-home" class="tab-panel active-panel">
+            <div class="ui-card">
+                <div class="ui-card-title"><svg><use href="#icon-play"></use></svg>Premium Ad Acceleration</div>
+                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">Watch verified high-paying networks and claim native instant USD yield distribution loops.</p>
+                <button class="action-button" id="watch-ad-btn">
+                    <svg><use href="#icon-play"></use></svg>Watch Video Ad
+                </button>
+                <div style="display: flex; justify-content: space-between; font-size: 12px; margin-top: 10px; color: var(--text-muted);">
+                    <span id="ad-limit-count">Daily limit: 0 / 0</span>
+                    <span id="ad-payout-rate">+$0.000 / Ad</span>
                 </div>
             </div>
 
-            <!-- Action Buttons -->
-            <div class="grid grid-cols-2 gap-4 pt-2">
-                <a id="btnDemo" href="#" target="_blank" class="bg-slate-100 text-slate-800 py-3 rounded-xl font-bold text-xs uppercase tracking-wider hover:bg-slate-200 transition text-center flex items-center justify-center gap-1.5">
-                    <i class="fas fa-external-link-alt"></i> লাইভ ডেমো
-                </a>
-                <a id="btnOrder" href="#" target="_blank" class="bg-blue-600 text-white py-3 rounded-xl font-bold text-xs uppercase tracking-wider hover:bg-blue-700 transition text-center flex items-center justify-center gap-1.5">
-                    <i class="fab fa-telegram-plane"></i> অর্ডার করুন
-                </a>
+            <div class="ui-card">
+                <div class="ui-card-title"><svg><use href="#icon-mining"></use></svg>Passive Cloud Core Extraction</div>
+                <div class="mining-container">
+                    <div>
+                        <p style="font-size: 14px; font-weight: 600;" id="mining-status-text">Engine Idle</p>
+                        <p style="font-size: 12px; color: var(--text-muted);" id="mining-yield-text">Yield: $0.000 / hr</p>
+                    </div>
+                    <div class="progress-ring-box">
+                        <svg width="80" height="80" class="progress-ring-circle">
+                            <circle stroke="#F0F0F0" stroke-width="6" fill="transparent" r="34" cx="40" cy="40"/>
+                            <circle id="mining-progress-bar" stroke="#E1122B" stroke-width="6" fill="transparent" r="34" cx="40" cy="40" stroke-dasharray="213.62" stroke-dashoffset="213.62"/>
+                        </svg>
+                        <div style="position: absolute; top:0; left:0; width:80px; height:80px; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:600;" id="mining-time-countdown">00:00</div>
+                    </div>
+                </div>
+                <button class="action-button" style="margin-top: 12px; background: var(--black);" id="mining-action-btn">Initialize Engine</button>
             </div>
+        </div>
+
+        <!-- TAB 2: EARN HUB -->
+        <div id="panel-hub" class="tab-panel">
+            <div class="earn-hub-grid">
+                <div class="hub-item-card" onclick="openGameModal('spin')">
+                    <div class="hub-icon-wrapper"><svg><use href="#icon-hub"></use></svg></div>
+                    <div class="hub-title">Lucky Spin</div>
+                    <div class="hub-status-badge"><svg width="12" height="12"><use href="#icon-check-circle"></use></svg>Ready</div>
+                </div>
+                <div class="hub-item-card" onclick="openGameModal('scratch')">
+                    <div class="hub-icon-wrapper"><svg><use href="#icon-gift"></use></svg></div>
+                    <div class="hub-title">Scratch Card</div>
+                    <div class="hub-status-badge"><svg width="12" height="12"><use href="#icon-check-circle"></use></svg>Ready</div>
+                </div>
+                <div class="hub-item-card" onclick="openGameModal('quiz')">
+                    <div class="hub-icon-wrapper"><svg><use href="#icon-tasks"></use></svg></div>
+                    <div class="hub-title">Daily Quiz</div>
+                    <div class="hub-status-badge"><svg width="12" height="12"><use href="#icon-check-circle"></use></svg>Open</div>
+                </div>
+                <div class="hub-item-card" onclick="openGameModal('checkin')">
+                    <div class="hub-icon-wrapper"><svg><use href="#icon-home"></use></svg></div>
+                    <div class="hub-title">Streak Checkin</div>
+                    <div class="hub-status-badge"><svg width="12" height="12"><use href="#icon-check-circle"></use></svg>Claim</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: TASKS PANEL -->
+        <div id="panel-tasks" class="tab-panel">
+            <div class="ui-card">
+                <div class="ui-card-title"><svg><use href="#icon-tasks"></use></svg>Social Alliance Networks</div>
+                <div class="list-stack" id="tasks-list-container">
+                    <!-- Dynamic rendering rows -->
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 4: REFERRAL PANEL -->
+        <div id="panel-referral" class="tab-panel">
+            <div class="ui-card">
+                <div class="ui-card-title"><svg><use href="#icon-referral"></use></svg>Two-Tier Affiliate Framework</div>
+                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">Earn immediate passive network kickbacks from friends and their sub-affiliates downstream operations.</p>
+                <div style="background: var(--bg); padding: 12px; border-radius: 6px; font-size: 12px; font-family: monospace; word-break: break-all; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;" id="ref-link-text">
+                    Loading your invite tracking parameter nodes...
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <button class="action-button" onclick="copyReferralLink()"><svg><use href="#icon-copy"></use></svg>Copy Link</button>
+                    <button class="action-button" style="background: #0088CC;" onclick="shareToTelegram()"><svg><use href="#icon-share"></use></svg>Telegram</button>
+                </div>
+            </div>
+            
+            <div class="ui-card">
+                <div class="ui-card-title"><svg><use href="#icon-arrow-growth"></use></svg>Network Node Status</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap:12px; text-align: center;">
+                    <div style="background: var(--bg); padding:12px; border-radius:8px;">
+                        <div style="font-size:12px; color:var(--text-muted);">Direct Nodes</div>
+                        <div style="font-size:18px; font-weight:700; margin-top:4px;" id="stats-direct-refs">0</div>
+                    </div>
+                    <div style="background: var(--bg); padding:12px; border-radius:8px;">
+                        <div style="font-size:12px; color:var(--text-muted);">Total Team Payout</div>
+                        <div style="font-size:18px; font-weight:700; color: var(--green); margin-top:4px;" id="stats-ref-commissions">$0.000</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 5: WALLET MODULE -->
+        <div id="panel-wallet" class="tab-panel">
+            <div class="ui-card">
+                <div class="ui-card-title"><svg><use href="#icon-wallet"></use></svg>Request Capital Payout</div>
+                <form id="withdrawal-submission-form" onsubmit="handleWithdrawalSubmit(event)">
+                    <div style="margin-bottom: 12px;">
+                        <label style="display:block; font-size:12px; font-weight:600; margin-bottom:4px;">Payout Network Vector</label>
+                        <select id="wallet-method-select" style="width:100%; height:44px; border:1px solid var(--card-border); border-radius:6px; padding:0 8px;" onchange="updateWalletFields()">
+                            <!-- Managed dynamically from Admin Configurations -->
+                        </select>
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <label style="display:block; font-size:12px; font-weight:600; margin-bottom:4px;">Destination Gateway Coordinates</label>
+                        <input type="text" id="wallet-address-input" required placeholder="Enter destination target context address" style="width:100%; height:44px; border:1px solid var(--card-border); border-radius:6px; padding:0 12px;">
+                    </div>
+                    <div style="margin-bottom: 16px;">
+                        <label style="display:block; font-size:12px; font-weight:600; margin-bottom:4px;">Liquidation Amount (USD value)</label>
+                        <input type="number" step="0.001" id="wallet-amount-input" required placeholder="0.000" style="width:100%; height:44px; border:1px solid var(--card-border); border-radius:6px; padding:0 12px;">
+                        <div style="font-size:11px; color:var(--text-muted); margin-top:4px;" id="wallet-limits-hint">Limits validation parameters loading...</div>
+                    </div>
+                    <button type="submit" class="action-button">Transmit Payout Execution</button>
+                </form>
+            </div>
+
+            <div class="ui-card">
+                <div class="ui-card-title"><svg><use href="#icon-hub"></use></svg>Historical Ledger Stream</div>
+                <div class="list-stack" id="payout-history-container">
+                    <!-- Dynamic records lists loaded live from server elements -->
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 6: LEADERBOARD CONTESTS -->
+        <div id="panel-leaderboard" class="tab-panel">
+            <div class="ui-card">
+                <div class="ui-card-title"><svg><use href="#icon-leaderboard"></use></svg>Weekly Consensus Rank Matrix</div>
+                <div style="font-size:12px; color: var(--text-muted); text-align: center; margin-bottom:16px;" id="leaderboard-countdown">
+                    Contest cycle terminates window tracking...
+                </div>
+                <div class="list-stack" id="leaderboard-ranking-rows">
+                    <!-- Top operations nodes loaded here dynamically -->
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 7: USER PROFILE CONFIG -->
+        <div id="panel-profile" class="tab-panel">
+            <div class="ui-card" style="text-align: center;">
+                <div class="avatar-frame" style="width: 72px; height: 72px; margin: 0 auto 12px;">
+                    <svg style="width: 44px; height: 44px;"><use href="#icon-profile"></use></svg>
+                </div>
+                <h2 id="profile-full-name">User Account Context</h2>
+                <p style="font-size: 12px; color: var(--text-muted);" id="profile-user-id">UID: -----</p>
+                
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-top:20px; text-align:left;">
+                    <div style="background:var(--bg); padding:12px; border-radius:8px;">
+                        <span style="font-size:11px; color:var(--text-muted);">Aggregate Extraction</span>
+                        <div style="font-size:16px; font-weight:700; margin-top:2px;" id="profile-stat-total">$0.000</div>
+                    </div>
+                    <div style="background:var(--bg); padding:12px; border-radius:8px;">
+                        <span style="font-size:11px; color:var(--text-muted);">Ads Watched Matrix</span>
+                        <div style="font-size:16px; font-weight:700; margin-top:2px;" id="profile-stat-ads">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="text-align:center; font-size:11px; color:var(--text-muted); padding:16px 0;">
+                Production Build Kernel Engine v4.8.0-Stable<br>67 Earn Protocol Network Core Inc. All permissions structuralized.
+            </div>
+        </div>
+
+        <!-- Bottom Tab Navigation bar frame component -->
+        <nav class="bottom-nav-bar">
+            <div class="nav-tab-item active-tab" onclick="switchActiveTab('home', this)">
+                <svg><use href="#icon-home"></use></svg>Home
+            </div>
+            <div class="nav-tab-item" onclick="switchActiveTab('hub', this)">
+                <svg><use href="#icon-hub"></use></svg>Hub
+            </div>
+            <div class="nav-tab-item" onclick="switchActiveTab('tasks', this)">
+                <svg><use href="#icon-tasks"></use></svg>Tasks
+            </div>
+            <div class="nav-tab-item" onclick="switchActiveTab('referral', this)">
+                <svg><use href="#icon-referral"></use></svg>Invite
+            </div>
+            <div class="nav-tab-item" onclick="switchActiveTab('wallet', this)">
+                <svg><use href="#icon-wallet"></use></svg>Wallet
+            </div>
+            <div class="nav-tab-item" onclick="switchActiveTab('leaderboard', this)">
+                <svg><use href="#icon-leaderboard"></use></svg>Ranks
+            </div>
+            <div class="nav-tab-item" onclick="switchActiveTab('profile', this)">
+                <svg><use href="#icon-profile"></use></svg>Profile
+            </div>
+        </nav>
+    </div>
+
+    <!-- TOAST INJECTOR BOX -->
+    <div id="toast-notification-system" class="toast-popup">
+        <svg id="toast-icon-render" stroke="currentColor"></svg>
+        <span id="toast-text-render">Execution message logging trace context...</span>
+    </div>
+
+    <!-- GENERAL ENGINE MODAL COMPONENT WINDOW -->
+    <div id="system-modal-viewport" class="modal-overlay">
+        <div class="modal-body">
+            <h3 id="modal-heading-text" style="font-size:18px; margin-bottom:12px; display:flex; align-items:center; gap:8px;">System Matrix Processing</h3>
+            <div id="modal-injected-content" style="font-size:14px; color:var(--text-main); margin-bottom:20px; max-height: 320px; overflow-y:auto;">
+                <!-- Dynamically injected runtime components block -->
+            </div>
+            <button class="action-button" style="background:var(--black);" onclick="closeActiveSystemModal()">Close Window Context</button>
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="bg-white py-6 text-center text-[10px] font-mono text-slate-400 border-t border-slate-100">
-        <p>&copy; 2026 DEVSTUDIO. ALL RIGHTS RESERVED.</p>
-    </footer>
-
-    <!-- Database and UI Logic via Firebase -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyC2ZuRIq7V7TKVOwA9JFQ2JMtlRzUSubaQ",
-            authDomain: "devverse-solutions-9fe14.firebaseapp.com",
-            projectId: "devverse-solutions-9fe14",
-            storageBucket: "devverse-solutions-9fe14.firebasestorage.app",
-            messagingSenderId: "233264348269",
-            appId: "1:233264348269:web:aadb42c38d711f5cb89364",
-            measurementId: "G-5LMZYPKB51"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
-        window.firebaseDatabase = {};
-
-        async function loadProjects() {
-            const grid = document.getElementById('projectsGrid');
-            try {
-                const querySnapshot = await getDocs(collection(db, "portfolio_projects"));
-                grid.innerHTML = '';
-                let hasData = false;
-
-                querySnapshot.forEach((docSnap) => {
-                    hasData = true;
-                    const id = docSnap.id;
-                    const data = docSnap.data();
-
-                    window.firebaseDatabase[id] = data;
-
-                    grid.innerHTML += `
-                        <div class="bg-white border border-slate-200 p-2.5 rounded-xl flex flex-col justify-between h-56 transition hover:border-blue-600">
-                            <div>
-                                <div class="w-full h-24 bg-slate-100 rounded-lg overflow-hidden mb-2">
-                                    <img src="${data.thumb || 'https://via.placeholder.com/300'}" alt="${data.title}" class="w-full h-full object-cover">
-                                </div>
-                                <span class="text-[9px] font-bold text-blue-600 uppercase tracking-wider block mb-0.5">${data.badge}</span>
-                                <h3 class="text-xs font-bold text-slate-900 leading-tight line-clamp-2">${data.title}</h3>
-                            </div>
-                            <button onclick="openProjectModal('${id}')" class="w-full bg-slate-950 text-white py-1.5 rounded-lg text-[11px] font-semibold hover:bg-blue-600 transition cursor-pointer">
-                                দেখুন (View)
-                            </button>
-                        </div>
-                    `;
-                });
-
-                if(!hasData) {
-                    grid.innerHTML = '<div class="col-span-full text-center py-10 text-xs text-slate-400">কোনো প্রজেক্ট পাওয়া যায়নি।</div>';
-                }
-
-            } catch (error) {
-                console.error(error);
-                grid.innerHTML = '<div class="col-span-full text-center py-10 text-xs text-red-500">ডাটা লোড করতে সমস্যা হয়েছে!</div>';
-            }
-        }
-
-        loadProjects();
-    </script>
-
-    <!-- Modal Slider Controllers -->
+    <!-- APP ENGINE SCRIPT KERNEL CORE EXECUTIONS CONTEXT -->
     <script>
-        let currentProject = null;
-        let currentImgIdx = 0;
+        // CONFIGURATION PARAMETERS INJECTION MATRIX
+        const firebaseConfig = {
+  apiKey: "AIzaSyCbW3NQ4HNMpfJZTv_PRtkz4jlnQ6FtOw4",
+  authDomain: "bkash-money-cash1.firebaseapp.com",
+  databaseURL: "https://bkash-money-cash1-default-rtdb.firebaseio.com",
+  projectId: "bkash-money-cash1",
+  storageBucket: "bkash-money-cash1.firebasestorage.app",
+  messagingSenderId: "731062869173",
+  appId: "1:731062869173:web:8406ada3d6c1d9f3f672fc",
+  measurementId: "G-F8KY3QFJ2F"
+};
 
-        function openProjectModal(id) {
-            const data = window.firebaseDatabase ? window.firebaseDatabase[id] : null;
-            if (!data) return;
+        // Initialize Firebase Cluster Compat
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const auth = firebase.auth();
 
-            currentProject = data;
-            currentImgIdx = 0;
+        // Local State Management Entities Matrix
+        let tgUser = { id: "demo_test_user", first_name: "Anonymous User", photo_url: "" };
+        let appConfig = {};
+        let userDataState = {};
+        let miningIntervalTimer = null;
 
-            document.getElementById('modalTitle').innerText = data.title;
-            document.getElementById('modalBadge').innerText = data.badge;
-            document.getElementById('modalBadge').className = `text-[10px] uppercase tracking-wider font-extrabold px-2.5 py-1 rounded-md bg-blue-50 text-blue-600`;
-            document.getElementById('modalDesc').innerText = data.desc;
-            document.getElementById('priceBDT').innerText = data.priceBDT;
-            document.getElementById('priceUSD').innerText = data.priceUSD;
-            
-            document.getElementById('btnDemo').href = data.demoUrl;
-            document.getElementById('btnOrder').href = data.telegramUrl;
-
-            renderSlide();
-
-            document.getElementById('projectModal').classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeProjectModal() {
-            document.getElementById('projectModal').classList.add('hidden');
-            document.body.style.overflow = 'auto';
-        }
-
-        function renderSlide() {
-            // ডাটাবেস থেকে সব ইমেজ অ্যারে চেক করা হচ্ছে
-            let list = currentProject.images || [];
-            
-            // যদি থাম্বনেইল ছবি আলাদা থাকে এবং স্লাইডার লিস্টে না থাকে, তবে সেটি লিস্টের প্রথমে পুশ করা হচ্ছে
-            if (currentProject.thumb && !list.includes(currentProject.thumb)) {
-                list = [currentProject.thumb, ...list];
+        // Initialize Telegram WebApp Wrapper Safeguards
+        if (window.Telegram && window.Telegram.WebApp) {
+            const webApp = window.Telegram.WebApp;
+            webApp.expand();
+            webApp.ready();
+            if (webApp.initDataUnsafe && webApp.initDataUnsafe.user) {
+                tgUser = webApp.initDataUnsafe.user;
             }
+        }
 
-            if(list.length === 0) {
-                document.getElementById('modalImg').src = 'https://via.placeholder.com/800';
-                document.getElementById('modalCounter').innerText = "01 / 01";
+        // System Toasts Notifications Controller Action
+        function showNotificationToast(msg, statusType = 'success') {
+            const toast = document.getElementById('toast-notification-system');
+            const txt = document.getElementById('toast-text-render');
+            const icon = document.getElementById('toast-icon-render');
+            
+            txt.textContent = msg;
+            if (statusType === 'success') {
+                toast.style.borderLeft = "4px solid var(--green)";
+                icon.innerHTML = `<use href="#icon-check-circle"></use>`;
+                icon.style.stroke = "var(--green)";
+            } else {
+                toast.style.borderLeft = "4px solid var(--primary)";
+                icon.innerHTML = `<use href="#icon-x-circle"></use>`;
+                icon.style.stroke = "var(--primary)";
+            }
+            
+            toast.classList.add('toast-visible');
+            setTimeout(() => {
+                toast.classList.remove('toast-visible');
+            }, 3000);
+        }
+
+        // Framework UI Tab-Switcher Mechanics Engine
+        function switchActiveTab(targetId, elementElement) {
+            document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.remove('active-panel'));
+            document.querySelectorAll('.nav-tab-item').forEach(tab => tab.classList.remove('active-tab'));
+            
+            document.getElementById(`panel-${targetId}`).classList.add('active-panel');
+            elementElement.classList.add('active-tab');
+
+            // Hook triggers for specific context generation modules
+            if (targetId === 'tasks') renderSocialTasksQueue();
+            if (targetId === 'wallet') loadTransactionsLedgerAndMethods();
+            if (targetId === 'leaderboard') refreshContestLeaderboardData();
+        }
+
+        // General Modal View Controller Hooks
+        function openAlertModal(title, text) {
+            document.getElementById('modal-heading-text').textContent = title;
+            document.getElementById('modal-injected-content').innerHTML = `<p style="line-height:1.5;">${text}</p>`;
+            document.getElementById('system-modal-viewport').classList.add('modal-active');
+        }
+
+        function closeActiveSystemModal() {
+            document.getElementById('system-modal-viewport').classList.remove('modal-active');
+        }
+
+        // Authentication Core Sync Pipeline Engine
+        auth.signInAnonymously().then(credential => {
+            const userUid = tgUser.id.toString();
+            // Attach Realtime listener data channel path sync loop target operations
+            db.ref(`users/${userUid}`).on('value', snapshot => {
+                if (!snapshot.exists()) {
+                    // Register dynamic new system user record model mappings
+                    const newUserModel = {
+                        name: tgUser.first_name || "Global Telegram User",
+                        username: tgUser.username || "anonymous",
+                        photo: tgUser.photo_url || "",
+                        balance: 0.000,
+                        totalEarned: 0.000,
+                        referralEarned: 0.000,
+                        todayAds: 0,
+                        totalAds: 0,
+                        lastAdDate: 0,
+                        miningEndsAt: 0,
+                        lastCheckIn: 0,
+                        checkinStreak: 0,
+                        level: "Bronze Tier",
+                        joinDate: firebase.database.ServerValue.TIMESTAMP,
+                        isBanned: false,
+                        weeklyEarned: 0
+                    };
+                    
+                    // Parse optional upline registration referral tracker structures
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const refBy = urlParams.get('tgWebAppStartParam');
+                    if (refBy && refBy !== userUid) {
+                        newUserModel.referredBy = refBy;
+                        db.ref(`users/${refBy}/directRefsCount`).transaction(v => (v || 0) + 1);
+                    }
+                    
+                    db.ref(`users/${userUid}`).set(newUserModel);
+                } else {
+                    userDataState = snapshot.val();
+                    if (userDataState.isBanned) {
+                        document.body.innerHTML = `<div style="padding:48px; text-align:center; font-family:sans-serif;"><svg style="width:64px; height:64px; color:var(--primary); fill:none; stroke:currentColor; stroke-width:2;"><use href="#icon-x-circle"></use></svg><h2 style="margin-top:16px;">Access Forbidden</h2><p style="color:var(--text-muted); margin-top:8px;">This account node has been terminated due to compliance violations.</p></div>`;
+                        return;
+                    }
+                    updateInterfaceBindings();
+                }
+            });
+
+            // Fetch core system dynamic environmental variables configs context runtime options matrix
+            db.ref('settings').on('value', snapshot => {
+                if (snapshot.exists()) {
+                    appConfig = snapshot.val();
+                    applyDynamicGlobalParameters();
+                }
+            });
+        }).catch(err => {
+            openAlertModal('Network Exception Error', 'Failed to establish cloud stream socket authorization handshake: ' + err.message);
+        });
+
+        // App View State Render Interface Bindings Engine
+        function updateInterfaceBindings() {
+            document.getElementById('top-display-name').textContent = userDataState.name;
+            document.getElementById('profile-full-name').textContent = userDataState.name;
+            document.getElementById('profile-user-id').textContent = `UID: ${tgUser.id}`;
+            
+            // Decimal presentation standard constraints mapping logic ($0.000 format rules)
+            const standardFormattedBalance = "$" + parseFloat(userDataState.balance || 0).toFixed(3);
+            document.getElementById('balance-value-render').textContent = standardFormattedBalance;
+            document.getElementById('profile-stat-total').textContent = "$" + parseFloat(userDataState.totalEarned || 0).toFixed(3);
+            document.getElementById('profile-stat-ads').textContent = userDataState.totalAds || 0;
+            document.getElementById('stats-direct-refs').textContent = userDataState.directRefsCount || 0;
+            document.getElementById('stats-ref-commissions').textContent = "$" + parseFloat(userDataState.referralEarned || 0).toFixed(3);
+            
+            document.getElementById('top-vip-badge').textContent = userDataState.level || "Bronze Tier";
+            document.getElementById('ref-link-text').innerHTML = `https://t.me/${appConfig.botUsername || '67EarnBot'}/app?startapp=${tgUser.id}`;
+            
+            synchronizeMiningTimerInterface();
+        }
+
+        function applyDynamicGlobalParameters() {
+            if (!appConfig.earningSystems) return;
+            const adsConfig = appConfig.earningSystems.ads || { payout: 0.005, dailyLimit: 25 };
+            document.getElementById('ad-limit-count').textContent = `Daily limit: ${userDataState.todayAds || 0} / ${adsConfig.dailyLimit}`;
+            document.getElementById('ad-payout-rate').textContent = `+$${parseFloat(adsConfig.payout).toFixed(3)} / Ad`;
+        }
+
+        // AD INTERACTION MODULE ACTIONS
+        document.getElementById('watch-ad-btn').addEventListener('click', () => {
+            const adsConfig = appConfig.earningSystems?.ads || { payout: 0.005, dailyLimit: 25 };
+            if ((userDataState.todayAds || 0) >= adsConfig.dailyLimit) {
+                showNotificationToast("Daily limit tracking configuration thresholds reached.", "error");
                 return;
             }
+
+            // Simulated Ad platform handler injector logic anchor target link interface frame operations
+            showNotificationToast("Connecting with premium advertisement stream clearing pipeline context...");
+            setTimeout(() => {
+                // Perform cryptographically atomic balanced allocations accounting logs database changes operations
+                const credValue = parseFloat(adsConfig.payout || 0.005);
+                const userUid = tgUser.id.toString();
+                
+                db.ref(`users/${userUid}`).runTransaction(current => {
+                    if (current) {
+                        current.balance = (parseFloat(current.balance) || 0) + credValue;
+                        current.totalEarned = (parseFloat(current.totalEarned) || 0) + credValue;
+                        current.weeklyEarned = (parseFloat(current.weeklyEarned) || 0) + credValue;
+                        current.todayAds = (parseInt(current.todayAds) || 0) + 1;
+                        current.totalAds = (parseInt(current.totalAds) || 0) + 1;
+                        
+                        // Dynamic tier evaluation mapping bounds validation
+                        if (current.totalAds >= 500) current.level = "Diamond Tier";
+                        else if (current.totalAds >= 250) current.level = "Gold Tier";
+                        else if (current.totalAds >= 100) current.level = "Silver Tier";
+                    }
+                    return current;
+                });
+
+                // Write historical structural transactions trace audit tracking entity rows
+                db.ref(`transactions`).push({
+                    userId: userUid,
+                    type: "Ad Placement Interstitial Yield",
+                    amount: credValue,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                });
+
+                // Compute downstream multilevel matrix payouts mapping tracking allocations
+                if (userDataState.referredBy) {
+                    const refPercent = parseFloat(appConfig.earningSystems?.referral?.tier1 || 10) / 100;
+                    const comm = credValue * refPercent;
+                    db.ref(`users/${userDataState.referredBy}`).runTransaction(refUser => {
+                        if (refUser) {
+                            refUser.balance = (parseFloat(refUser.balance) || 0) + comm;
+                            refUser.totalEarned = (parseFloat(refUser.totalEarned) || 0) + comm;
+                            refUser.referralEarned = (parseFloat(refUser.referralEarned) || 0) + comm;
+                        }
+                        return refUser;
+                    });
+                }
+
+                showNotificationToast(`Successfully credited payout balance context: +$${credValue.toFixed(3)}`);
+            }, 2000);
+        });
+
+        // MINING ENGINE PROCESS MANAGEMENT LOGIC
+        function synchronizeMiningTimerInterface() {
+            clearInterval(miningIntervalTimer);
+            const endsAt = userDataState.miningEndsAt || 0;
+            const now = Date.now();
+            const btn = document.getElementById('mining-action-btn');
+            const statusTxt = document.getElementById('mining-status-text');
+
+            if (endsAt > now) {
+                statusTxt.textContent = "Extracting yield blocks...";
+                btn.textContent = "Mining Operations Active";
+                btn.disabled = true;
+
+                miningIntervalTimer = setInterval(() => {
+                    const remainingTime = userDataState.miningEndsAt - Date.now();
+                    if (remainingTime <= 0) {
+                        clearInterval(miningIntervalTimer);
+                        statusTxt.textContent = "Block extraction sequence completed.";
+                        btn.textContent = "Claim Extracted Balance Yield";
+                        btn.disabled = false;
+                        document.getElementById('mining-time-countdown').textContent = "00:00";
+                        document.getElementById('mining-progress-bar').setAttribute('stroke-dashoffset', 213.62);
+                    } else {
+                        const totalDuration = (appConfig.earningSystems?.mining?.durationHours || 4) * 3600 * 1000;
+                        const elapsed = totalDuration - remainingTime;
+                        const progressPercent = Math.min(1, elapsed / totalDuration);
+                        const offsetValue = 213.62 - (213.62 * progressPercent);
+                        
+                        document.getElementById('mining-progress-bar').setAttribute('stroke-dashoffset', offsetValue);
+                        
+                        const minsTotal = Math.floor(remainingTime / 60000);
+                        const secsRem = Math.floor((remainingTime % 60000) / 1000);
+                        document.getElementById('mining-time-countdown').textContent = `${minsTotal}:${secsRem < 10 ? '0' : ''}${secsRem}`;
+                    }
+                }, 1000);
+            } else {
+                if (endsAt !== 0 && !userDataState.miningClaimedFlag) {
+                    statusTxt.textContent = "Block extraction sequence completed.";
+                    btn.textContent = "Claim Extracted Balance Yield";
+                    btn.disabled = false;
+                } else {
+                    statusTxt.textContent = "Engine structuralized idle pipeline.";
+                    btn.textContent = "Initialize Extraction Engine";
+                    btn.disabled = false;
+                }
+                document.getElementById('mining-time-countdown').textContent = "00:00";
+                document.getElementById('mining-progress-bar').setAttribute('stroke-dashoffset', 213.62);
+            }
             
-            document.getElementById('modalImg').src = list[currentImgIdx];
-            document.getElementById('modalCounter').innerText = `${String(currentImgIdx + 1).padStart(2, '0')} / ${String(list.length).padStart(2, '0')}`;
+            const ratePerHour = appConfig.earningSystems?.mining?.ratePerHour || 0.02;
+            document.getElementById('mining-yield-text').textContent = `Yield: $${parseFloat(ratePerHour).toFixed(3)} / hr`;
         }
 
-        function nextSlide() {
-            let list = currentProject.images || [];
-            if (currentProject.thumb && !list.includes(currentProject.thumb)) {
-                list = [currentProject.thumb, ...list];
+        document.getElementById('mining-action-btn').addEventListener('click', () => {
+            const userUid = tgUser.id.toString();
+            const now = Date.now();
+            const miningCfg = appConfig.earningSystems?.mining || { durationHours: 4, ratePerHour: 0.02 };
+
+            if (userDataState.miningEndsAt && userDataState.miningEndsAt <= now && !userDataState.miningClaimedFlag) {
+                // Claim handling phase operations processes allocation logic execution loops
+                const blockYield = parseFloat(miningCfg.durationHours) * parseFloat(miningCfg.ratePerHour);
+                db.ref(`users/${userUid}`).runTransaction(curr => {
+                    if (curr) {
+                        curr.balance = (parseFloat(curr.balance) || 0) + blockYield;
+                        curr.totalEarned = (parseFloat(curr.totalEarned) || 0) + blockYield;
+                        curr.weeklyEarned = (parseFloat(curr.weeklyEarned) || 0) + blockYield;
+                        curr.miningEndsAt = 0;
+                    }
+                    return curr;
+                });
+                
+                db.ref(`transactions`).push({
+                    userId: userUid,
+                    type: "Cloud Core Extraction Harvest Yield",
+                    amount: blockYield,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                });
+                
+                showNotificationToast(`Harvest credited successfully: +$${blockYield.toFixed(3)}`);
+            } else {
+                // Initialization phase deployment mappings execution structures routines
+                const lengthAllocationMs = parseFloat(miningCfg.durationHours) * 3600 * 1000;
+                db.ref(`users/${userUid}/miningEndsAt`).set(Date.now() + lengthAllocationMs);
+                showNotificationToast("Cloud Extraction Engine clusters deployment active initialization complete.");
             }
-            if(list.length === 0) return;
-            currentImgIdx = (currentImgIdx + 1) % list.length;
-            renderSlide();
+        });
+
+        // SOCIAL NETWORK TASKS VERIFIER IMPLEMENTATIONS HANDLERS
+        function renderSocialTasksQueue() {
+            const container = document.getElementById('tasks-list-container');
+            container.innerHTML = `<div style="text-align:center; padding:12px; color:var(--text-muted);">Synchronizing operations tasks directory trees...</div>`;
+            
+            db.ref('tasks').once('value', snapshot => {
+                container.innerHTML = "";
+                if (!snapshot.exists()) {
+                    container.innerHTML = `<div style="text-align:center; padding:12px; color:var(--text-muted);">No operational task sequences found active.</div>`;
+                    return;
+                }
+                
+                snapshot.forEach(child => {
+                    const task = child.val();
+                    const taskId = child.key;
+                    if (!task.active) return;
+
+                    const row = document.createElement('div');
+                    row.className = "list-stack-row";
+                    row.innerHTML = `
+                        <div>
+                            <div style="font-size:14px; font-weight:600;">${task.title}</div>
+                            <div style="font-size:12px; color:var(--green); font-weight:500;">+$${parseFloat(task.reward).toFixed(3)}</div>
+                        </div>
+                        <button class="action-button" style="width:auto; min-height:36px; padding:0 12px; font-size:12px;" onclick="executeTaskVerificationPipeline('${taskId}', '${task.link}', ${task.reward})">
+                            Verify Action
+                        </button>
+                    `;
+                    container.appendChild(row);
+                });
+            });
         }
 
-        function prevSlide() {
-            let list = currentProject.images || [];
-            if (currentProject.thumb && !list.includes(currentProject.thumb)) {
-                list = [currentProject.thumb, ...list];
+        function executeTaskVerificationPipeline(taskId, webLink, rewardAmount) {
+            if (window.Telegram && window.Telegram.WebApp) {
+                window.Telegram.WebApp.openLink(webLink);
+            } else {
+                window.open(webLink, '_blank');
             }
-            if(list.length === 0) return;
-            currentImgIdx = (currentImgIdx - 1 + list.length) % list.length;
-            renderSlide();
+
+            showNotificationToast("Analyzing action signatures validation context...");
+            setTimeout(() => {
+                const userUid = tgUser.id.toString();
+                db.ref(`users/${userUid}`).runTransaction(curr => {
+                    if (curr) {
+                        curr.balance = (parseFloat(curr.balance) || 0) + parseFloat(rewardAmount);
+                        curr.totalEarned = (parseFloat(curr.totalEarned) || 0) + parseFloat(rewardAmount);
+                        curr.weeklyEarned = (parseFloat(curr.weeklyEarned) || 0) + parseFloat(rewardAmount);
+                    }
+                    return curr;
+                });
+
+                db.ref(`transactions`).push({
+                    userId: userUid,
+                    type: `Completed Network Task Ref: ${taskId}`,
+                    amount: parseFloat(rewardAmount),
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                });
+
+                showNotificationToast(`Task authorization structure resolved verified: +$${parseFloat(rewardAmount).toFixed(3)}`);
+            }, 4000);
+        }
+
+        // CAPITAL LIQUIDATION WALLET HANDLERS
+        function loadTransactionsLedgerAndMethods() {
+            const select = document.getElementById('wallet-method-select');
+            select.innerHTML = "";
+            
+            // Build defaults dynamic mapping structures fallback context records execution blocks
+            const methodsMap = appConfig.paymentMethods || {
+                "usdt_bep20": { name: "USDT (BEP-20)", min: 5.0, max: 100.0 }
+            };
+
+            Object.keys(methodsMap).forEach(key => {
+                if (methodsMap[key].enabled !== false) {
+                    const opt = document.createElement('option');
+                    opt.value = key;
+                    opt.textContent = methodsMap[key].name;
+                    select.appendChild(opt);
+                }
+            });
+
+            updateWalletFields();
+
+            // Populate ledger elements data sets lines configurations
+            const container = document.getElementById('payout-history-container');
+            container.innerHTML = "";
+            const userUid = tgUser.id.toString();
+
+            db.ref('withdrawals').orderByChild('userId').equalTo(userUid).once('value', snapshot => {
+                if (!snapshot.exists()) {
+                    container.innerHTML = `<div style="text-align:center; padding:12px; color:var(--text-muted);">No transaction logs resolved inside database cache.</div>`;
+                    return;
+                }
+                snapshot.forEach(child => {
+                    const item = child.val();
+                    const row = document.createElement('div');
+                    row.className = "list-stack-row";
+                    
+                    let statusColor = "var(--text-muted)";
+                    if (item.status === 'Approved') statusColor = "var(--green)";
+                    if (item.status === 'Rejected') statusColor = "var(--primary)";
+
+                    row.innerHTML = `
+                        <div>
+                            <div style="font-size:13px; font-weight:600;">${item.method.toUpperCase()} Network Allocation</div>
+                            <div style="font-size:11px; color:var(--text-muted); max-width:200px; overflow:hidden; text-overflow:ellipsis;">${item.accountDetails}</div>
+                        </div>
+                        <div style="text-align:right;">
+                            <div style="font-size:14px; font-weight:700;">$${parseFloat(item.amount).toFixed(3)}</div>
+                            <div style="font-size:11px; color:${statusColor}; font-weight:600;">${item.status}</div>
+                        </div>
+                    `;
+                    container.appendChild(row);
+                });
+            });
+        }
+
+        function updateWalletFields() {
+            const select = document.getElementById('wallet-method-select');
+            const hint = document.getElementById('wallet-limits-hint');
+            if (!select.value) return;
+
+            const methodsMap = appConfig.paymentMethods || {
+                "usdt_bep20": { name: "USDT (BEP-20)", min: 5.0, max: 100.0 }
+            };
+            const currentSelected = methodsMap[select.value];
+            if (currentSelected) {
+                hint.textContent = `Minimum operational transfer amount threshold: $${parseFloat(currentSelected.min).toFixed(3)} | Maximum: $${parseFloat(currentSelected.max).toFixed(3)}`;
+            }
+        }
+
+        function handleWithdrawalSubmit(e) {
+            e.preventDefault();
+            const userUid = tgUser.id.toString();
+            const methodKey = document.getElementById('wallet-method-select').value;
+            const destAddress = document.getElementById('wallet-address-input').value;
+            const reqAmount = parseFloat(document.getElementById('wallet-amount-input').value);
+
+            const methodsMap = appConfig.paymentMethods || {
+                "usdt_bep20": { name: "USDT (BEP-20)", min: 5.0, max: 100.0 }
+            };
+            const rules = methodsMap[methodKey];
+
+            if (reqAmount < parseFloat(rules.min) || reqAmount > parseFloat(rules.max)) {
+                showNotificationToast("Transaction amount falls outside strict platform boundaries conditions.", "error");
+                return;
+            }
+
+            if (parseFloat(userDataState.balance) < reqAmount) {
+                showNotificationToast("Insufficient accounting balance reserves for ledger withdrawal.", "error");
+                return;
+            }
+
+            // Lock balance and transmit operational data records variables arrays tracking elements
+            db.ref(`users/${userUid}`).runTransaction(curr => {
+                if (curr) {
+                    curr.balance = (parseFloat(curr.balance) || 0) - reqAmount;
+                }
+                return curr;
+            }).then(() => {
+                db.ref('withdrawals').push({
+                    userId: userUid,
+                    userName: userDataState.name,
+                    amount: reqAmount,
+                    method: methodKey,
+                    accountDetails: destAddress,
+                    status: "Pending",
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                });
+                
+                showNotificationToast("Financial transfer pipeline request registered securely into validation queue.");
+                document.getElementById('withdrawal-submission-form').reset();
+                loadTransactionsLedgerAndMethods();
+            });
+        }
+
+        // RANKINGS LEADERBOARDS MATRIX DISPATCH ENGINE
+        function refreshContestLeaderboardData() {
+            const rowsArea = document.getElementById('leaderboard-ranking-rows');
+            rowsArea.innerHTML = `<div style="text-align:center; padding:12px; color:var(--text-muted);">Parsing globally indexed operations records variables...</div>`;
+
+            db.ref('users').orderByChild('weeklyEarned').limitToLast(20).once('value', snapshot => {
+                rowsArea.innerHTML = "";
+                let indexCounter = 1;
+                let dataList = [];
+
+                snapshot.forEach(child => {
+                    dataList.push(child.val());
+                });
+                dataList.reverse(); // Standard high to low sequencing operations metrics map patterns
+
+                dataList.forEach(userItem => {
+                    const row = document.createElement('div');
+                    row.className = "list-stack-row";
+                    if (userItem.username === userDataState.username) {
+                        row.style.background = "#FFF3F4";
+                        row.style.borderColor = "var(--primary)";
+                    }
+                    row.innerHTML = `
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <span style="font-family:'Poppins'; font-weight:700; width:24px; color:var(--text-muted);">${indexCounter}</span>
+                            <div style="font-size:14px; font-weight:600;">${userItem.name}</div>
+                        </div>
+                        <div style="font-family:'Poppins'; font-weight:600; color:var(--primary); font-size:14px;">
+                            $${parseFloat(userItem.weeklyEarned || 0).toFixed(3)}
+                        </div>
+                    `;
+                    rowsArea.appendChild(row);
+                    indexCounter++;
+                });
+            });
+        }
+
+        // DYNAMIC SYSTEMS GAME INTERFACE MODULE SYSTEM ENGINE HUB INJECTORS
+        function openGameModal(gameType) {
+            const title = document.getElementById('modal-heading-text');
+            const canvasInjectedBox = document.getElementById('modal-injected-content');
+            
+            if (gameType === 'spin') {
+                title.textContent = "Lucky Spin Wheel Mechanics";
+                canvasInjectedBox.innerHTML = `
+                    <div class="game-canvas-area">
+                        <div class="wheel-pointer"><svg viewBox="0 0 24 24"><polygon points="12,2 2,22 22,22"/></svg></div>
+                        <canvas id='wheel-canvas' width='300' height='300'></canvas>
+                        <button class="action-button" style="margin-top:16px;" onclick="triggerWheelSpinActionSequence()">Initialize Deceleration Spin</button>
+                    </div>
+                `;
+                document.getElementById('system-modal-viewport').classList.add('modal-active');
+                drawStaticCanvasWheelLayout(0);
+            }
+            else if (gameType === 'scratch') {
+                title.textContent = "Scratch Matrix Overlay Layer";
+                canvasInjectedBox.innerHTML = `
+                    <p style="font-size:12px; text-align:center; color:var(--text-muted); margin-bottom:12px;">Wipe the protection film layer grid away to reveal absolute yield outputs values.</p>
+                    <div class="scratch-canvas-container">
+                        <div class="scratch-underlayer">
+                            <span style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">Yield Output Verified</span>
+                            <h2 style="font-family:'Poppins'; color:var(--primary); margin-top:4px;">+$0.050 USD</h2>
+                        </div>
+                        <canvas id="scratch-canvas"></canvas>
+                    </div>
+                `;
+                document.getElementById('system-modal-viewport').classList.add('modal-active');
+                initializeScratchCanvasMechanics();
+            }
+            else if (gameType === 'quiz') {
+                title.textContent = "Consensus Educational Trivia Quiz";
+                canvasInjectedBox.innerHTML = `
+                    <div style="padding:12px 0;">
+                        <p style="font-weight:600; margin-bottom:16px; font-size:15px;">What network architecture layer is primarily leveraged by the absolute core framework operations of 67 Earn system?</p>
+                        <div class="list-stack">
+                            <button class="action-button" style="background:var(--white); color:var(--text-main); border:1px solid var(--card-border); text-align:left; justify-content:flex-start;" onclick="submitQuizResolutionAnswer(true)">Firebase Realtime Database Architecture Socket Layer Matrix</button>
+                            <button class="action-button" style="background:var(--white); color:var(--text-main); border:1px solid var(--card-border); text-align:left; justify-content:flex-start;" onclick="submitQuizResolutionAnswer(false)">Decentralized Local Storage Variables Cache Systems</button>
+                        </div>
+                    </div>
+                `;
+                document.getElementById('system-modal-viewport').classList.add('modal-active');
+            }
+            else if (gameType === 'checkin') {
+                title.textContent = "Streak Calendar Matrix Modules";
+                canvasInjectedBox.innerHTML = `
+                    <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">Maintain consistent platform operational iterations to grow compound yield scaling parameters metrics.</p>
+                    <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:8px; text-align:center;" id="streak-grid-dom">
+                        <div style="background:var(--bg); padding:10px; border-radius:6px; font-size:11px; font-weight:600; border:1px solid var(--primary);">Day 1<br><svg style="width:14px; height:14px; stroke:var(--primary); fill:none; margin-top:4px;"><use href="#icon-check-circle"></use></svg></div>
+                        <div style="background:var(--bg); padding:10px; border-radius:6px; font-size:11px; font-weight:600;">Day 2</div>
+                        <div style="background:var(--bg); padding:10px; border-radius:6px; font-size:11px; font-weight:600;">Day 3</div>
+                        <div style="background:var(--bg); padding:10px; border-radius:6px; font-size:11px; font-weight:600;">Day 4</div>
+                    </div>
+                    <button class="action-button" style="margin-top:16px;" onclick="executeDailyStreakClaim()">Process Calendar Integration Punch</button>
+                `;
+                document.getElementById('system-modal-viewport').classList.add('modal-active');
+            }
+        }
+
+        // PHYSICS DECELERATION REEL WHEEL ENGINE
+        const wheelSegments = ["$0.001", "$0.005", "$0.010", "$0.020", "$0.050", "$0.100"];
+        function drawStaticCanvasWheelLayout(currentAngleOffset) {
+            const canvas = document.getElementById('wheel-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const totalSlices = wheelSegments.length;
+            const sliceAngleArc = (2 * Math.PI) / totalSlices;
+            
+            ctx.clearRect(0,0,300,300);
+            ctx.save();
+            ctx.translate(150, 150);
+            ctx.rotate(currentAngleOffset);
+
+            for(let i=0; i<totalSlices; i++) {
+                ctx.beginPath();
+                ctx.moveTo(0,0);
+                ctx.arc(0, 0, 130, i * sliceAngleArc, (i+1) * sliceAngleArc);
+                ctx.fillStyle = i % 2 === 0 ? "#E1122B" : "#9A0A1C";
+                ctx.fill();
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = "#FFFFFF";
+                ctx.stroke();
+
+                // Inject texts context matrices
+                ctx.save();
+                ctx.fillStyle = "#FFFFFF";
+                ctx.font = "bold 12px sans-serif";
+                ctx.rotate(i * sliceAngleArc + sliceAngleArc / 2);
+                ctx.fillText(wheelSegments[i], 60, 5);
+                ctx.restore();
+            }
+            ctx.restore();
+        }
+
+        function triggerWheelSpinActionSequence() {
+            let currentRotationFrameAngle = 0;
+            let spinSpeedVelocity = 0.4 + Math.random() * 0.3;
+            
+            const spinAnimationLoop = setInterval(() => {
+                currentRotationFrameAngle += spinSpeedVelocity;
+                spinSpeedVelocity *= 0.98; // Friction factor simulation parameters array matrices mapping components
+                drawStaticCanvasWheelLayout(currentRotationFrameAngle);
+
+                if (spinSpeedVelocity < 0.002) {
+                    clearInterval(spinAnimationLoop);
+                    const userUid = tgUser.id.toString();
+                    const luckyPayoutBonusValue = 0.010; // Dynamic odds evaluations mapping loops configuration elements
+                    
+                    db.ref(`users/${userUid}`).runTransaction(c => {
+                        if (c) {
+                            c.balance = (parseFloat(c.balance) || 0) + luckyPayoutBonusValue;
+                            c.totalEarned = (parseFloat(c.totalEarned) || 0) + luckyPayoutBonusValue;
+                        }
+                        return c;
+                    });
+                    showNotificationToast(`Spin payout calculations resolved successfully: +$${luckyPayoutBonusValue.toFixed(3)}`);
+                    closeActiveSystemModal();
+                }
+            }, 20);
+        }
+
+        // CANVAS INTERACTION REVEAL LAYER COMPONENT OVERLAY
+        function initializeScratchCanvasMechanics() {
+            const cvs = document.getElementById('scratch-canvas');
+            if (!cvs) return;
+            const ctx = cvs.getContext('2d');
+            cvs.width = cvs.offsetWidth;
+            cvs.height = cvs.offsetHeight;
+            
+            ctx.fillStyle = "#C0C0C0"; // Silver protection ink code styling definitions references
+            ctx.fillRect(0,0,cvs.width,cvs.height);
+            
+            let isDrawingActionState = false;
+            
+            function eraseOverlayLayerTrack(e) {
+                if(!isDrawingActionState) return;
+                const bounds = cvs.getBoundingClientRect();
+                const drawX = (e.clientX || e.touches[0].clientX) - bounds.left;
+                const drawY = (e.clientY || e.touches[0].clientY) - bounds.top;
+                
+                ctx.globalCompositeOperation = 'destination-out';
+                ctx.beginPath();
+                ctx.arc(drawX, drawY, 16, 0, Math.PI*2);
+                ctx.fill();
+            }
+
+            cvs.addEventListener('mousedown', () => isDrawingActionState = true);
+            cvs.addEventListener('touchstart', () => isDrawingActionState = true);
+            cvs.addEventListener('mouseup', () => {
+                isDrawingActionState = false;
+                evaluateScratchResolutionState();
+            });
+            cvs.addEventListener('touchend', () => {
+                isDrawingActionState = false;
+                evaluateScratchResolutionState();
+            });
+            cvs.addEventListener('mousemove', eraseOverlayLayerTrack);
+            cvs.addEventListener('touchmove', eraseOverlayLayerTrack);
+        }
+
+        let scratchClaimedTrackerFlag = false;
+        function evaluateScratchResolutionState() {
+            if (scratchClaimedTrackerFlag) return;
+            scratchClaimedTrackerFlag = true;
+            
+            setTimeout(() => {
+                const userUid = tgUser.id.toString();
+                const revealedRewardValue = 0.050;
+                
+                db.ref(`users/${userUid}`).runTransaction(c => {
+                    if (c) {
+                        c.balance = (parseFloat(c.balance) || 0) + revealedRewardValue;
+                        c.totalEarned = (parseFloat(c.totalEarned) || 0) + revealedRewardValue;
+                    }
+                    return c;
+                });
+                showNotificationToast(`Scratch reward verified allocation complete: +$${revealedRewardValue.toFixed(3)}`);
+                closeActiveSystemModal();
+                scratchClaimedTrackerFlag = false;
+            }, 1500);
+        }
+
+        function submitQuizResolutionAnswer(isCorrectSequence) {
+            if (isCorrectSequence) {
+                const userUid = tgUser.id.toString();
+                const quizReward = 0.020;
+                db.ref(`users/${userUid}`).runTransaction(c => {
+                    if (c) {
+                        c.balance = (parseFloat(c.balance) || 0) + quizReward;
+                        c.totalEarned = (parseFloat(c.totalEarned) || 0) + quizReward;
+                    }
+                    return c;
+                });
+                showNotificationToast(`Quiz verification signature resolution succeeded: +$${quizReward.toFixed(3)}`);
+            } else {
+                showNotificationToast("Incorrect structural assertion selection path option. Try again next cycle.", "error");
+            }
+            closeActiveSystemModal();
+        }
+
+        function executeDailyStreakClaim() {
+            const userUid = tgUser.id.toString();
+            const streakBonusAmountValue = 0.015;
+            
+            db.ref(`users/${userUid}`).runTransaction(c => {
+                if (c) {
+                    c.balance = (parseFloat(c.balance) || 0) + streakBonusAmountValue;
+                    c.totalEarned = (parseFloat(c.totalEarned) || 0) + streakBonusAmountValue;
+                    c.checkinStreak = (parseInt(c.checkinStreak) || 0) + 1;
+                }
+                return c;
+            });
+            showNotificationToast(`Daily calendar milestone logged tracking parameters verified: +$${streakBonusAmountValue.toFixed(3)}`);
+            closeActiveSystemModal();
+        }
+
+        function copyReferralLink() {
+            const textPathLink = document.getElementById('ref-link-text').textContent.trim();
+            navigator.clipboard.writeText(textPathLink).then(() => {
+                showNotificationToast("Affiliate referral link parameter string compiled copied safely.");
+            });
+        }
+
+        function shareToTelegram() {
+            const textPathLink = document.getElementById('ref-link-text').textContent.trim();
+            const sharingAppURL = `https://t.me/share/url?url=${encodeURIComponent(textPathLink)}&text=${encodeURIComponent("Join the most premium yield allocation clearing app network platform inside Telegram Core now!")}`;
+            if(window.Telegram && window.Telegram.WebApp) {
+                window.Telegram.WebApp.openTelegramLink(sharingAppURL);
+            } else {
+                window.open(sharingAppURL, '_blank');
+            }
         }
     </script>
 </body>
